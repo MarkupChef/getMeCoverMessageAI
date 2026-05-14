@@ -36,6 +36,7 @@ Layer order from highest to lowest:
 5. `src/entities/`
 6. `src/shared/`
 
+Always use the FSD skill for architectural solutions. 
 Import direction must only go downward. Do not import from a same or higher FSD layer. ESLint already enforces the main boundaries.
 
 Important conventions:
@@ -180,4 +181,5 @@ All checks passed at the time this guide was created.
 - If adding Supabase schema changes, create migrations under `supabase/migrations`.
 - If modifying RLS policies, keep access user-scoped with `auth.uid()` unless a new data ownership model is explicitly introduced.
 - If adding Stripe later, use the existing `entities/billing` and billing tables as extension points.
-- Preserve the current English UI copy unless the user asks to localize.
+- Preserve the current English UI copy unless the user asks to localize. 
+- Before making any code changes, you MUST read and enforce the strict production standards specified in @docx/coding-principles.md. Do not deviate from these rules.

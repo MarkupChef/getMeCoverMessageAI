@@ -8,8 +8,8 @@ import {
 } from "@/shared/ui/card";
 
 const stats = [
-  { label: "Active users", value: "0", note: "Connect product events later" },
-  { label: "Organizations", value: "1", note: "Membership scoped by RLS" },
+  { label: "Usage events", value: "0", note: "Connect product events later" },
+  { label: "Account", value: "1", note: "User-scoped data with RLS" },
   { label: "Plan", value: "Free", note: "Billing placeholder" },
 ];
 
@@ -22,7 +22,7 @@ export function DashboardView() {
         </Badge>
         <h1 className="text-3xl font-semibold tracking-normal">Dashboard</h1>
         <p className="text-muted-foreground">
-          This shell is ready for product widgets, analytics, and team-scoped data.
+          This shell is ready for product widgets, analytics, and user-scoped data.
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
@@ -47,10 +47,10 @@ export function DashboardView() {
         </CardHeader>
         <CardContent className="grid gap-3 md:grid-cols-2">
           {[
-            "Create organization onboarding",
-            "Invite members by email",
-            "Add Stripe checkout and webhooks",
             "Connect product-specific entities",
+            "Add account profile settings",
+            "Add Stripe checkout and webhooks",
+            "Track usage and subscription state",
           ].map((item) => (
             <div key={item} className="rounded-md border p-3 text-sm">
               {item}

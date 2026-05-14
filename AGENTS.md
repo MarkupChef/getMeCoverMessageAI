@@ -4,7 +4,7 @@
 
 This repository is a standalone SaaS scaffold built with Next.js App Router, TypeScript, TailwindCSS 4, shadcn-style local UI components, Supabase Auth/Postgres, Zod, React Hook Form, and Feature-Sliced Design.
 
-The product-specific SaaS features are intentionally not implemented yet. The current goal of the codebase is to provide a scalable foundation for authentication, protected application layout, organization/team modeling, validation, and future billing integration.
+The product-specific SaaS features are intentionally not implemented yet. The current goal of the codebase is to provide a scalable foundation for authentication, protected application layout, solo-user account modeling, validation, and future billing integration.
 
 ## Current Stack
 
@@ -92,7 +92,7 @@ Security rules:
 - Never expose Supabase service role keys in client code.
 - Use server-side `supabase.auth.getUser()` for protected routes.
 - Do not make authorization decisions from user-editable `user_metadata`.
-- Keep role and billing authorization data in database tables or app metadata.
+- Keep billing authorization data in database tables or app metadata.
 - RLS is enabled on all public SaaS tables in the migration.
 
 ## Database Baseline
@@ -100,19 +100,15 @@ Security rules:
 The initial migration creates:
 
 - `profiles`
-- `organizations`
-- `memberships`
-- `invitations`
 - `billing_customers`
 - `billing_subscriptions`
 
 It also creates:
 
-- membership and billing enums
-- `private.has_organization_role(...)` helper for RLS checks
+- billing subscription status enum
 - profile creation trigger for new Supabase auth users
 - updated-at triggers
-- organization-scoped RLS policies
+- user-scoped RLS policies
 
 Billing is a placeholder only. Stripe Checkout, Customer Portal, and webhooks are not implemented yet.
 
@@ -126,8 +122,6 @@ Current schemas include:
 - `signUpSchema`
 - `forgotPasswordSchema`
 - `resetPasswordSchema`
-- `organizationSchema`
-- `inviteMemberSchema`
 - `subscriptionStatusSchema`
 
 Client forms use React Hook Form with `zodResolver`. Server actions must validate input again with the same schema or a stricter server schema.
@@ -182,7 +176,8 @@ All checks passed at the time this guide was created.
 - Do not rewrite the architecture away from FSD without explicit user approval.
 - Keep `/app` route files thin and move page composition to `src/views`.
 - If adding new SaaS capabilities, start with entity schemas/types, then features, then widgets/views.
+- Keep product and billing data scoped directly to the signed-in user unless the product explicitly becomes team-based later.
 - If adding Supabase schema changes, create migrations under `supabase/migrations`.
-- If modifying RLS policies, check for recursive policy reads and prefer private security-definer helpers in a non-exposed schema.
+- If modifying RLS policies, keep access user-scoped with `auth.uid()` unless a new data ownership model is explicitly introduced.
 - If adding Stripe later, use the existing `entities/billing` and billing tables as extension points.
 - Preserve the current English UI copy unless the user asks to localize.

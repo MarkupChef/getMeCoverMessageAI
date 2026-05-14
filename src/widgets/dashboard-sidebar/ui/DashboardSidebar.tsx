@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { BarChart3, CreditCard, Home, Settings, Users } from "lucide-react";
-import { OrganizationSwitcher } from "@/features/organization-switcher";
+import { BarChart3, CreditCard, Home, Settings } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/ui/button";
 import { Separator } from "@/shared/ui/separator";
@@ -8,7 +7,6 @@ import { Separator } from "@/shared/ui/separator";
 const navigation = [
   { href: "/dashboard", label: "Overview", icon: Home },
   { href: "/dashboard", label: "Analytics", icon: BarChart3 },
-  { href: "/settings", label: "Members", icon: Users },
   { href: "/settings", label: "Billing", icon: CreditCard },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
@@ -23,9 +21,6 @@ export function DashboardSidebar({ className }: { className?: string }) {
     >
       <div className="flex h-12 items-center px-2 text-lg font-semibold">
         SaaS Starter
-      </div>
-      <div className="mt-4">
-        <OrganizationSwitcher />
       </div>
       <Separator className="my-4" />
       <nav className="flex flex-col gap-1">

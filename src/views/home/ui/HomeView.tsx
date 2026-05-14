@@ -12,7 +12,7 @@ import { Badge } from "@/shared/ui/badge";
 
 const foundations = [
   "Supabase SSR auth",
-  "Organization data model",
+  "User-scoped data model",
   "Zod validated forms",
   "Feature-Sliced Design",
 ];
@@ -44,7 +44,7 @@ export function HomeView() {
                 A scalable SaaS foundation with the boring parts already wired.
               </h1>
               <p className="max-w-xl text-lg text-muted-foreground">
-                Auth, teams, validation, layout, and database boundaries are in place so product features can be added without reshaping the app.
+                Auth, subscriptions, validation, layout, and database boundaries are in place so product features can be added without reshaping the app.
               </p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">

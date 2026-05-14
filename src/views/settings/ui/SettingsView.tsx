@@ -13,22 +13,22 @@ export function SettingsView() {
       <div>
         <h1 className="text-3xl font-semibold tracking-normal">Settings</h1>
         <p className="text-muted-foreground">
-          Organization, member, and billing settings placeholders.
+          Account and billing settings placeholders.
         </p>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Organization</CardTitle>
-            <CardDescription>Workspace identity and membership.</CardDescription>
+            <CardTitle>Account</CardTitle>
+            <CardDescription>Profile and personal workspace settings.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3 text-sm">
             <div className="flex items-center justify-between rounded-md border p-3">
-              <span>Current role</span>
-              <Badge variant="secondary">Owner</Badge>
+              <span>Account type</span>
+              <Badge variant="secondary">Individual</Badge>
             </div>
             <div className="rounded-md border p-3 text-muted-foreground">
-              Invite form will use inviteMemberSchema and organization-scoped RLS.
+              Profile updates will stay scoped to the signed-in user.
             </div>
           </CardContent>
         </Card>

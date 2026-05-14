@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { subscriptionStatusSchema } from "@/entities/billing";
 import { signInSchema, signUpSchema } from "@/features/auth";
-import { inviteMemberSchema } from "@/features/invitation-management";
-import { organizationSchema } from "@/entities/organization";
 
 describe("validation schemas", () => {
   it("rejects invalid sign in credentials", () => {
@@ -32,20 +31,8 @@ describe("validation schemas", () => {
     ).toBe(false);
   });
 
-  it("validates organization slugs", () => {
-    expect(
-      organizationSchema.safeParse({ name: "Acme", slug: "acme-workspace" })
-        .success,
-    ).toBe(true);
-    expect(
-      organizationSchema.safeParse({ name: "Acme", slug: "Acme Workspace" })
-        .success,
-    ).toBe(false);
-  });
-
-  it("defaults invitation role to member", () => {
-    const result = inviteMemberSchema.parse({ email: "new@example.com" });
-
-    expect(result.role).toBe("member");
+  it("validates subscription statuses", () => {
+    expect(subscriptionStatusSchema.safeParse("active").success).toBe(true);
+    expect(subscriptionStatusSchema.safeParse("paused").success).toBe(false);
   });
 });

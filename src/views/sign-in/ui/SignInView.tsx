@@ -1,6 +1,10 @@
 import { AuthCard, SignInForm } from "@/features/auth";
 
-export function SignInView() {
+type SignInViewProps = {
+  oauthError?: string;
+};
+
+export function SignInView({ oauthError }: SignInViewProps) {
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
       <AuthCard
@@ -10,7 +14,7 @@ export function SignInView() {
         footerHref="/sign-up"
         footerLabel="Create one"
       >
-        <SignInForm />
+        <SignInForm oauthError={oauthError} />
       </AuthCard>
     </main>
   );

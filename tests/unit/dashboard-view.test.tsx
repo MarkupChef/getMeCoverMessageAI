@@ -1,7 +1,14 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { DashboardView } from "@/views/dashboard";
 import { DashboardLayout } from "@/app/layouts/DashboardLayout";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    replace: vi.fn(),
+    refresh: vi.fn(),
+  }),
+}));
 
 describe("DashboardView", () => {
   it("renders dashboard shell content", () => {

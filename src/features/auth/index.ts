@@ -3,7 +3,7 @@ export { ForgotPasswordForm } from "./ui/ForgotPasswordForm";
 export { ResetPasswordForm } from "./ui/ResetPasswordForm";
 export { SignInForm } from "./ui/SignInForm";
 export { SignUpForm } from "./ui/SignUpForm";
-export { signOutAction } from "./api/actions";
+export { createGoogleOAuthRedirect, signOutAction } from "./api/actions";
 export {
   forgotPasswordSchema,
   resetPasswordSchema,

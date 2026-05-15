@@ -23,6 +23,7 @@ export function SignUpForm() {
       confirmPassword: "",
     },
   });
+  const isSubmitting = form.formState.isSubmitting || isPending;
 
   function onSubmit(values: SignUpInput) {
     startTransition(async () => {
@@ -37,18 +38,34 @@ export function SignUpForm() {
   }
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={form.handleSubmit(onSubmit)}>
+    <form
+      className="flex flex-col gap-4"
+      method="post"
+      noValidate
+      onSubmit={form.handleSubmit(onSubmit)}
+    >
       <FieldGroup>
         <Field data-invalid={Boolean(form.formState.errors.fullName)}>
           <Label htmlFor="fullName">Full name</Label>
-          <Input id="fullName" autoComplete="name" {...form.register("fullName")} />
+          <Input
+            id="fullName"
+            autoComplete="name"
+            aria-invalid={Boolean(form.formState.errors.fullName)}
+            {...form.register("fullName")}
+          />
           {form.formState.errors.fullName ? (
             <FieldError>{form.formState.errors.fullName.message}</FieldError>
           ) : null}
         </Field>
         <Field data-invalid={Boolean(form.formState.errors.email)}>
           <Label htmlFor="email">Email</Label>
-          <Input id="email" autoComplete="email" type="email" {...form.register("email")} />
+          <Input
+            id="email"
+            autoComplete="email"
+            type="email"
+            aria-invalid={Boolean(form.formState.errors.email)}
+            {...form.register("email")}
+          />
           {form.formState.errors.email ? (
             <FieldError>{form.formState.errors.email.message}</FieldError>
           ) : null}
@@ -59,6 +76,7 @@ export function SignUpForm() {
             id="password"
             autoComplete="new-password"
             type="password"
+            aria-invalid={Boolean(form.formState.errors.password)}
             {...form.register("password")}
           />
           {form.formState.errors.password ? (
@@ -71,6 +89,7 @@ export function SignUpForm() {
             id="confirmPassword"
             autoComplete="new-password"
             type="password"
+            aria-invalid={Boolean(form.formState.errors.confirmPassword)}
             {...form.register("confirmPassword")}
           />
           {form.formState.errors.confirmPassword ? (
@@ -78,8 +97,8 @@ export function SignUpForm() {
           ) : null}
         </Field>
       </FieldGroup>
-      <Button disabled={isPending} type="submit">
-        {isPending ? <Spinner data-icon="inline-start" /> : null}
+      <Button disabled={isSubmitting} type="submit">
+        {isSubmitting ? <Spinner data-icon="inline-start" /> : null}
         Create account
       </Button>
     </form>

@@ -1,7 +1,8 @@
 "use client";
 
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { LogOut, Settings, User } from "lucide-react";
-import { signOutAction } from "@/features/auth";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -15,7 +16,20 @@ import {
 } from "@/shared/ui/dropdown-menu";
 
 export function UserMenu({ email }: { email: string }) {
+  const router = useRouter();
+  const [isSigningOut, startSignOutTransition] = useTransition();
   const initials = email.slice(0, 2).toUpperCase();
+
+  function handleSignOut() {
+    startSignOutTransition(async () => {
+      await fetch("/auth/sign-out", {
+        method: "POST",
+      });
+
+      router.replace("/sign-in");
+      router.refresh();
+    });
+  }
 
   return (
     <DropdownMenu>
@@ -41,14 +55,16 @@ export function UserMenu({ email }: { email: string }) {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <form action={signOutAction}>
-          <DropdownMenuItem asChild>
-            <button className="w-full" type="submit">
-              <LogOut data-icon="inline-start" />
-              Sign out
-            </button>
-          </DropdownMenuItem>
-        </form>
+        <DropdownMenuItem
+          disabled={isSigningOut}
+          onSelect={(event) => {
+            event.preventDefault();
+            handleSignOut();
+          }}
+        >
+          <LogOut data-icon="inline-start" />
+          Sign out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

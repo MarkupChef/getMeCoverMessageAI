@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { getPublicEnv } from "@/shared/config/env";
+import { getPublicEnv, hasPublicEnv } from "@/shared/config/env";
 import { createSupabaseServerClient } from "@/shared/api/supabase/server";
 import {
   forgotPasswordSchema,
@@ -19,11 +19,19 @@ export type AuthActionState = {
   message?: string;
 };
 
+export type OAuthRedirectState = AuthActionState & {
+  url?: string;
+};
+
 export async function signInAction(input: SignInInput): Promise<AuthActionState> {
   const parsed = signInSchema.safeParse(input);
 
   if (!parsed.success) {
     return { ok: false, message: "Check your email and password." };
+  }
+
+  if (!hasPublicEnv()) {
+    return { ok: false, message: "Authentication is not configured." };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -41,6 +49,10 @@ export async function signUpAction(input: SignUpInput): Promise<AuthActionState>
 
   if (!parsed.success) {
     return { ok: false, message: "Check the submitted account details." };
+  }
+
+  if (!hasPublicEnv()) {
+    return { ok: false, message: "Authentication is not configured." };
   }
 
   const env = getPublicEnv();
@@ -67,7 +79,11 @@ export async function signUpAction(input: SignUpInput): Promise<AuthActionState>
   };
 }
 
-export async function signInWithGoogleAction(): Promise<AuthActionState> {
+export async function createGoogleOAuthRedirect(): Promise<OAuthRedirectState> {
+  if (!hasPublicEnv()) {
+    return { ok: false, message: "Google sign in is not configured." };
+  }
+
   const env = getPublicEnv();
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -81,7 +97,17 @@ export async function signInWithGoogleAction(): Promise<AuthActionState> {
     return { ok: false, message: error?.message ?? "Unable to start Google sign in." };
   }
 
-  redirect(data.url);
+  return { ok: true, url: data.url };
+}
+
+export async function signInWithGoogleAction(): Promise<AuthActionState> {
+  const result = await createGoogleOAuthRedirect();
+
+  if (!result.ok || !result.url) {
+    return { ok: false, message: result.message };
+  }
+
+  redirect(result.url);
 }
 
 export async function forgotPasswordAction(

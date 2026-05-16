@@ -173,6 +173,10 @@ The scaffold was verified with:
 All checks passed at the time this guide was created.
 
 ## Notes For Future Agents
+<!-- BEGIN:nextjs-agent-rules -->
+### Next.js: ALWAYS read docs before coding
+Before any Next.js work, find and read the relevant doc in `@node_modules/next/dist/docs/`. Your training data is outdated — the docs are the source of truth.
+<!-- END:nextjs-agent-rules -->
 
 - Do not rewrite the architecture away from FSD without explicit user approval.
 - Keep `/app` route files thin and move page composition to `src/views`.
@@ -183,4 +187,4 @@ All checks passed at the time this guide was created.
 - If adding Stripe later, use the existing `entities/billing` and billing tables as extension points.
 - Preserve the current English UI copy unless the user asks to localize. 
 - Before making any code changes, you MUST read and enforce the strict production standards specified in @docx/coding-principles.md. Do not deviate from these rules.
-- Follow the guidelines for working with forms in the document @docx/form-rules.md. 
+- Follow the guidelines for working with forms in the document `@docx/form-rules.md`. 

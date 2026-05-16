@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { DashboardView } from "@/views/dashboard";
 import { DashboardLayout } from "@/app/layouts/DashboardLayout";
+import { ThemeProvider } from "@/shared/lib/theme";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -13,9 +14,11 @@ vi.mock("next/navigation", () => ({
 describe("DashboardView", () => {
   it("renders dashboard shell content", () => {
     render(
-      <DashboardLayout userEmail="founder@example.com">
-        <DashboardView />
-      </DashboardLayout>,
+      <ThemeProvider>
+        <DashboardLayout userEmail="founder@example.com">
+          <DashboardView />
+        </DashboardLayout>
+      </ThemeProvider>,
     );
 
     expect(screen.getByRole("heading", { name: "Dashboard" })).toBeInTheDocument();

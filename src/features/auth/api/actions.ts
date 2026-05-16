@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
 import { getPublicEnv, hasPublicEnv } from "@/shared/config/env";
 import { createSupabaseServerClient } from "@/shared/api/supabase/server";
+import { getLocalizedPath as buildLocalizedPath, type Locale } from "@/shared/i18n";
 import {
   createForgotPasswordSchema,
   createResetPasswordSchema,
@@ -46,10 +47,10 @@ async function getAuthMessages() {
   };
 }
 
-async function getLocalizedPath(pathname: string) {
-  const locale = await getLocale();
+async function getCurrentLocalizedPath(pathname: `/${string}`) {
+  const locale = (await getLocale()) as Locale;
 
-  return `/${locale}${pathname}`;
+  return buildLocalizedPath(locale, pathname);
 }
 
 export async function signInAction(input: SignInInput): Promise<AuthActionState> {
@@ -71,7 +72,7 @@ export async function signInAction(input: SignInInput): Promise<AuthActionState>
     return { ok: false, message: error.message };
   }
 
-  redirect(await getLocalizedPath("/dashboard"));
+  redirect(await getCurrentLocalizedPath("/dashboard"));
 }
 
 export async function signUpAction(input: SignUpInput): Promise<AuthActionState> {
@@ -87,14 +88,16 @@ export async function signUpAction(input: SignUpInput): Promise<AuthActionState>
   }
 
   const env = getPublicEnv();
-  const locale = await getLocale();
+  const locale = (await getLocale()) as Locale;
+  const callbackPath = buildLocalizedPath(locale, "/auth/callback");
+  const dashboardPath = buildLocalizedPath(locale, "/dashboard");
   const supabase = await createSupabaseServerClient();
   const { email, password, fullName } = parsed.data;
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${env.NEXT_PUBLIC_APP_URL}/${locale}/auth/callback?next=/${locale}/dashboard`,
+      emailRedirectTo: `${env.NEXT_PUBLIC_APP_URL}${callbackPath}?next=${dashboardPath}`,
       data: {
         full_name: fullName,
       },
@@ -119,12 +122,14 @@ export async function createGoogleOAuthRedirect(): Promise<OAuthRedirectState> {
   }
 
   const env = getPublicEnv();
-  const locale = await getLocale();
+  const locale = (await getLocale()) as Locale;
+  const callbackPath = buildLocalizedPath(locale, "/auth/callback");
+  const dashboardPath = buildLocalizedPath(locale, "/dashboard");
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${env.NEXT_PUBLIC_APP_URL}/${locale}/auth/callback?next=/${locale}/dashboard`,
+      redirectTo: `${env.NEXT_PUBLIC_APP_URL}${callbackPath}?next=${dashboardPath}`,
     },
   });
 
@@ -156,10 +161,12 @@ export async function forgotPasswordAction(
   }
 
   const env = getPublicEnv();
-  const locale = await getLocale();
+  const locale = (await getLocale()) as Locale;
+  const callbackPath = buildLocalizedPath(locale, "/auth/callback");
+  const resetPasswordPath = buildLocalizedPath(locale, "/reset-password");
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${env.NEXT_PUBLIC_APP_URL}/${locale}/auth/callback?next=/${locale}/reset-password`,
+    redirectTo: `${env.NEXT_PUBLIC_APP_URL}${callbackPath}?next=${resetPasswordPath}`,
   });
 
   if (error) {
@@ -188,11 +195,11 @@ export async function resetPasswordAction(
     return { ok: false, message: error.message };
   }
 
-  redirect(await getLocalizedPath("/dashboard"));
+  redirect(await getCurrentLocalizedPath("/dashboard"));
 }
 
 export async function signOutAction() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
-  redirect(await getLocalizedPath("/sign-in"));
+  redirect(await getCurrentLocalizedPath("/sign-in"));
 }

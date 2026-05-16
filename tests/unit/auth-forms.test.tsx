@@ -84,6 +84,6 @@ describe("auth forms", () => {
     const googleForm = googleButton.closest("form");
 
     expect(googleForm).toHaveAttribute("method", "post");
-    expect(googleForm).toHaveAttribute("action", "/en/auth/google");
+    expect(googleForm).toHaveAttribute("action", "/auth/google");
   });
 });

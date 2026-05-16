@@ -2,25 +2,16 @@ import { redirect } from "next/navigation";
 import { DashboardLayout } from "@/app/layouts/DashboardLayout";
 import { createSupabaseServerClient } from "@/shared/api/supabase/server";
 import { hasPublicEnv } from "@/shared/config/env";
-import { getLocalizedPath, getSupportedLocale } from "@/shared/i18n";
 
 export const dynamic = "force-dynamic";
 
 export default async function ProtectedDashboardLayout({
   children,
-  params,
 }: {
   children: React.ReactNode;
-  params: Promise<{
-    locale: string;
-  }>;
 }) {
-  const { locale: requestedLocale } = await params;
-  const locale = getSupportedLocale(requestedLocale);
-  const signInPath = getLocalizedPath(locale, "/sign-in");
-
   if (!hasPublicEnv()) {
-    redirect(signInPath);
+    redirect("/sign-in");
   }
 
   const supabase = await createSupabaseServerClient();
@@ -29,7 +20,7 @@ export default async function ProtectedDashboardLayout({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect(signInPath);
+    redirect("/sign-in");
   }
 
   return (

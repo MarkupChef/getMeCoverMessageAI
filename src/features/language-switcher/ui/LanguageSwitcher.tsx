@@ -3,7 +3,13 @@
 import { Languages } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useTransition } from "react";
-import { routing, usePathname, useRouter, type Locale } from "@/shared/i18n";
+import {
+  localeLabels,
+  routing,
+  usePathname,
+  useRouter,
+  type Locale,
+} from "@/shared/i18n";
 
 export function LanguageSwitcher() {
   const locale = useLocale() as Locale;
@@ -31,7 +37,7 @@ export function LanguageSwitcher() {
       >
         {routing.locales.map((item) => (
           <option key={item} value={item}>
-            {item === "en" ? t("english") : t("ukrainian")}
+            {localeLabels[item]}
           </option>
         ))}
       </select>

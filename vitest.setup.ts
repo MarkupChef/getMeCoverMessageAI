@@ -18,6 +18,14 @@ vi.mock("@/shared/i18n", () => ({
     href: string;
   }) => React.createElement("a", { href, ...props }, children),
   getPathname: vi.fn(),
+  getLocalizedPath: (locale: string, pathname: string) =>
+    locale === "en" ? pathname : `/${locale}${pathname}`,
+  getSupportedLocale: (locale?: string) =>
+    locale === "en" || locale === "uk" ? locale : "en",
+  localeLabels: {
+    en: "English",
+    uk: "Українська",
+  },
   redirect: vi.fn(),
   routing: {
     locales: ["en", "uk"],

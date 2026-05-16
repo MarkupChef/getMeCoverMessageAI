@@ -6,7 +6,7 @@ import { LogIn } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { Link } from "@/shared/i18n";
+import { getLocalizedPath, Link, type Locale } from "@/shared/i18n";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
 import { Button } from "@/shared/ui/button";
 import { Field, FieldError, FieldGroup } from "@/shared/ui/field";
@@ -21,7 +21,7 @@ type SignInFormProps = {
 };
 
 export function SignInForm({ oauthError }: SignInFormProps) {
-  const locale = useLocale();
+  const locale = useLocale() as Locale;
   const tActions = useTranslations("auth.actions");
   const tFields = useTranslations("auth.fields");
   const tMessages = useTranslations("auth.messages");
@@ -114,7 +114,7 @@ export function SignInForm({ oauthError }: SignInFormProps) {
           {tActions("signIn")}
         </Button>
       </form>
-      <form action={`/${locale}/auth/google`} method="post">
+      <form action={getLocalizedPath(locale, "/auth/google")} method="post">
         <Button className="w-full" type="submit" variant="outline">
           <LogIn data-icon="inline-start" />
           {tActions("continueWithGoogle")}

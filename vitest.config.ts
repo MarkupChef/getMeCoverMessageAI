@@ -18,6 +18,7 @@ export default defineConfig({
       "@/features": path.resolve(__dirname, "src/features"),
       "@/entities": path.resolve(__dirname, "src/entities"),
       "@/shared": path.resolve(__dirname, "src/shared"),
+      "next/navigation": path.resolve(__dirname, "node_modules/next/navigation.js"),
     },
   },
 });

@@ -7,11 +7,17 @@ export const dynamic = "force-dynamic";
 
 export default async function ProtectedDashboardLayout({
   children,
+  params,
 }: {
   children: React.ReactNode;
+  params: Promise<{
+    locale: string;
+  }>;
 }) {
+  const { locale } = await params;
+
   if (!hasPublicEnv()) {
-    redirect("/sign-in");
+    redirect(`/${locale}/sign-in`);
   }
 
   const supabase = await createSupabaseServerClient();
@@ -20,7 +26,7 @@ export default async function ProtectedDashboardLayout({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/sign-in");
+    redirect(`/${locale}/sign-in`);
   }
 
   return (

@@ -1,16 +1,19 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/shared/i18n";
 import { Button } from "@/shared/ui/button";
 
-export default function NotFound() {
+export default async function NotFound() {
+  const t = await getTranslations("errors");
+
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
       <div className="flex max-w-md flex-col gap-4 text-center">
-        <h1 className="text-2xl font-semibold">Page not found</h1>
+        <h1 className="text-2xl font-semibold">{t("notFoundTitle")}</h1>
         <p className="text-sm text-muted-foreground">
-          The page you are looking for does not exist.
+          {t("notFoundDescription")}
         </p>
         <Button asChild>
-          <Link href="/">Go home</Link>
+          <Link href="/">{t("goHome")}</Link>
         </Button>
       </div>
     </main>

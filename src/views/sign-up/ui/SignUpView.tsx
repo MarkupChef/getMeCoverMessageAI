@@ -1,14 +1,17 @@
 import { AuthCard, SignUpForm } from "@/features/auth";
+import { useTranslations } from "next-intl";
 
 export function SignUpView() {
+  const t = useTranslations("auth.card.signUp");
+
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
       <AuthCard
-        title="Create your account"
-        description="Start with a personal profile. Teams are created inside the app."
-        footerText="Already have an account?"
+        title={t("title")}
+        description={t("description")}
+        footerText={t("footerText")}
         footerHref="/sign-in"
-        footerLabel="Sign in"
+        footerLabel={t("footerLabel")}
       >
         <SignUpForm />
       </AuthCard>

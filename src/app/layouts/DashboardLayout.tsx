@@ -1,3 +1,5 @@
+import { useTranslations } from "next-intl";
+import { LanguageSwitcher } from "@/features/language-switcher";
 import { ThemeToggle } from "@/features/theme-toggle";
 import { DashboardSidebar } from "@/widgets/dashboard-sidebar";
 import { UserMenu } from "@/widgets/user-menu";
@@ -10,6 +12,8 @@ export function DashboardLayout({
   children: React.ReactNode;
   userEmail: string;
 }) {
+  const t = useTranslations("dashboard.shell");
+
   return (
     <div className="flex min-h-screen bg-background">
       <DashboardSidebar />
@@ -18,9 +22,10 @@ export function DashboardLayout({
           <MobileDashboardNavigation />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm text-muted-foreground">
-              Production-ready SaaS foundation
+              {t("tagline")}
             </p>
           </div>
+          <LanguageSwitcher />
           <ThemeToggle />
           <UserMenu email={userEmail} />
         </header>

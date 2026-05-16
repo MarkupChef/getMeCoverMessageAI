@@ -1,11 +1,12 @@
 "use client";
 
-import { useTransition } from "react";
-import Link from "next/link";
+import { useMemo, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LogIn } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { Link } from "@/shared/i18n";
 import { Alert, AlertDescription } from "@/shared/ui/alert";
 import { Button } from "@/shared/ui/button";
 import { Field, FieldError, FieldGroup } from "@/shared/ui/field";
@@ -13,16 +14,36 @@ import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Spinner } from "@/shared/ui/spinner";
 import { signInAction } from "../api/actions";
-import { signInSchema, type SignInInput } from "../model/schema";
+import { createSignInSchema, type SignInInput } from "../model/schema";
 
 type SignInFormProps = {
   oauthError?: string;
 };
 
 export function SignInForm({ oauthError }: SignInFormProps) {
+  const locale = useLocale();
+  const tActions = useTranslations("auth.actions");
+  const tFields = useTranslations("auth.fields");
+  const tMessages = useTranslations("auth.messages");
+  const tValidation = useTranslations("auth.validation");
   const [isPending, startTransition] = useTransition();
+  const schema = useMemo(
+    () =>
+      createSignInSchema({
+        emailRequired: tValidation("emailRequired"),
+        emailInvalid: tValidation("emailInvalid"),
+        passwordRequired: tValidation("passwordRequired"),
+        passwordMin: tValidation("passwordMin"),
+        fullNameRequired: tValidation("fullNameRequired"),
+        fullNameMin: tValidation("fullNameMin"),
+        fullNameMax: tValidation("fullNameMax"),
+        confirmPasswordRequired: tValidation("confirmPasswordRequired"),
+        passwordsMismatch: tValidation("passwordsMismatch"),
+      }),
+    [tValidation],
+  );
   const form = useForm<SignInInput>({
-    resolver: zodResolver(signInSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       email: "",
       password: "",
@@ -34,7 +55,7 @@ export function SignInForm({ oauthError }: SignInFormProps) {
     startTransition(async () => {
       const result = await signInAction(values);
       if (!result.ok) {
-        toast.error(result.message ?? "Unable to sign in.");
+        toast.error(result.message ?? tMessages("unableSignIn"));
       }
     });
   }
@@ -54,7 +75,7 @@ export function SignInForm({ oauthError }: SignInFormProps) {
       >
         <FieldGroup>
           <Field data-invalid={Boolean(form.formState.errors.email)}>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{tFields("email")}</Label>
             <Input
               id="email"
               autoComplete="email"
@@ -68,12 +89,12 @@ export function SignInForm({ oauthError }: SignInFormProps) {
           </Field>
           <Field data-invalid={Boolean(form.formState.errors.password)}>
             <div className="flex items-center justify-between gap-3">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{tFields("password")}</Label>
               <Link
                 className="text-sm text-muted-foreground hover:text-foreground"
                 href="/forgot-password"
               >
-                Forgot password?
+                {tActions("forgotPassword")}
               </Link>
             </div>
             <Input
@@ -90,13 +111,13 @@ export function SignInForm({ oauthError }: SignInFormProps) {
         </FieldGroup>
         <Button disabled={isSubmitting} type="submit">
           {isSubmitting ? <Spinner data-icon="inline-start" /> : null}
-          Sign in
+          {tActions("signIn")}
         </Button>
       </form>
-      <form action="/auth/google" method="post">
+      <form action={`/${locale}/auth/google`} method="post">
         <Button className="w-full" type="submit" variant="outline">
           <LogIn data-icon="inline-start" />
-          Continue with Google
+          {tActions("continueWithGoogle")}
         </Button>
       </form>
     </div>

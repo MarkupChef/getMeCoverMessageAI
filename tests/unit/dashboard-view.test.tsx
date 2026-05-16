@@ -1,19 +1,13 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 import { DashboardView } from "@/views/dashboard";
 import { DashboardLayout } from "@/app/layouts/DashboardLayout";
 import { ThemeProvider } from "@/shared/lib/theme";
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    replace: vi.fn(),
-    refresh: vi.fn(),
-  }),
-}));
+import { renderWithIntl } from "./render-with-intl";
 
 describe("DashboardView", () => {
   it("renders dashboard shell content", () => {
-    render(
+    renderWithIntl(
       <ThemeProvider>
         <DashboardLayout userEmail="founder@example.com">
           <DashboardView />

@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Badge } from "@/shared/ui/badge";
 import {
   Card,
@@ -8,42 +9,44 @@ import {
 } from "@/shared/ui/card";
 
 export function SettingsView() {
+  const t = useTranslations("settings");
+
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-3xl font-semibold tracking-normal">Settings</h1>
+        <h1 className="text-3xl font-semibold tracking-normal">{t("title")}</h1>
         <p className="text-muted-foreground">
-          Account and billing settings placeholders.
+          {t("description")}
         </p>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Account</CardTitle>
-            <CardDescription>Profile and personal workspace settings.</CardDescription>
+            <CardTitle>{t("account.title")}</CardTitle>
+            <CardDescription>{t("account.description")}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3 text-sm">
             <div className="flex items-center justify-between rounded-md border p-3">
-              <span>Account type</span>
-              <Badge variant="secondary">Individual</Badge>
+              <span>{t("account.typeLabel")}</span>
+              <Badge variant="secondary">{t("account.typeValue")}</Badge>
             </div>
             <div className="rounded-md border p-3 text-muted-foreground">
-              Profile updates will stay scoped to the signed-in user.
+              {t("account.note")}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Billing</CardTitle>
-            <CardDescription>Stripe extension point, not integrated yet.</CardDescription>
+            <CardTitle>{t("billing.title")}</CardTitle>
+            <CardDescription>{t("billing.description")}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3 text-sm">
             <div className="flex items-center justify-between rounded-md border p-3">
-              <span>Subscription status</span>
-              <Badge variant="outline">Not configured</Badge>
+              <span>{t("billing.statusLabel")}</span>
+              <Badge variant="outline">{t("billing.statusValue")}</Badge>
             </div>
             <div className="rounded-md border p-3 text-muted-foreground">
-              Add Checkout, Customer Portal, and webhooks when pricing is defined.
+              {t("billing.note")}
             </div>
           </CardContent>
         </Card>

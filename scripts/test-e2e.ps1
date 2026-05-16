@@ -3,7 +3,9 @@ $ErrorActionPreference = "Stop"
 $port = 3100
 $hostName = "127.0.0.1"
 $baseUrl = "http://${hostName}:${port}"
+$readyUrl = "${baseUrl}/sign-in"
 $workspace = (Resolve-Path "$PSScriptRoot\..").Path
+$nextBin = Join-Path $workspace "node_modules\.bin\next.cmd"
 
 Set-Location $workspace
 
@@ -15,13 +17,14 @@ if ($LASTEXITCODE -ne 0) {
 $serverJob = Start-Job -Name "next-e2e-server" -ScriptBlock {
   param(
     [string] $workspace,
+    [string] $nextBin,
     [int] $port,
     [string] $hostName
   )
 
   Set-Location $workspace
-  corepack pnpm exec next start --hostname $hostName --port $port
-} -ArgumentList $workspace, $port, $hostName
+  & $nextBin start --hostname $hostName --port $port
+} -ArgumentList $workspace, $nextBin, $port, $hostName
 
 try {
   $deadline = (Get-Date).AddSeconds(60)
@@ -33,9 +36,13 @@ try {
     }
 
     try {
-      $response = Invoke-WebRequest -UseBasicParsing -Uri $baseUrl -TimeoutSec 2
+      $response = Invoke-WebRequest `
+        -UseBasicParsing `
+        -Uri $readyUrl `
+        -TimeoutSec 2 `
+        -MaximumRedirection 0
 
-      if ($response.StatusCode -eq 200) {
+      if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 400) {
         break
       }
     } catch {
@@ -45,7 +52,7 @@ try {
 
   if ((Get-Date) -ge $deadline) {
     Receive-Job $serverJob
-    throw "Next.js e2e server did not become ready at $baseUrl."
+    throw "Next.js e2e server did not become ready at $readyUrl."
   }
 
   corepack pnpm exec playwright test

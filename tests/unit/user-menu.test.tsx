@@ -1,22 +1,22 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserMenu } from "@/widgets/user-menu";
+import { renderWithIntl } from "./render-with-intl";
 
-const replace = vi.fn();
-const refresh = vi.fn();
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    replace,
-    refresh,
-  }),
-}));
+const i18nRouter = (
+  globalThis as unknown as {
+    __i18nRouter: {
+      replace: ReturnType<typeof vi.fn>;
+      refresh: ReturnType<typeof vi.fn>;
+    };
+  }
+).__i18nRouter;
 
 describe("UserMenu", () => {
   beforeEach(() => {
-    replace.mockReset();
-    refresh.mockReset();
+    i18nRouter.replace.mockReset();
+    i18nRouter.refresh.mockReset();
     vi.stubGlobal(
       "fetch",
       vi.fn(() => Promise.resolve(new Response(null, { status: 200 }))),
@@ -25,15 +25,15 @@ describe("UserMenu", () => {
 
   it("posts to sign out when the menu item is selected", async () => {
     const user = userEvent.setup();
-    render(<UserMenu email="founder@example.com" />);
+    renderWithIntl(<UserMenu email="founder@example.com" />);
 
     await user.click(screen.getByRole("button", { name: /founder@example\.com/ }));
     await user.click(screen.getByRole("menuitem", { name: "Sign out" }));
 
-    expect(fetch).toHaveBeenCalledWith("/auth/sign-out", {
+    expect(fetch).toHaveBeenCalledWith("./auth/sign-out", {
       method: "POST",
     });
-    expect(replace).toHaveBeenCalledWith("/sign-in");
-    expect(refresh).toHaveBeenCalled();
+    expect(i18nRouter.replace).toHaveBeenCalledWith("/sign-in");
+    expect(i18nRouter.refresh).toHaveBeenCalled();
   });
 });

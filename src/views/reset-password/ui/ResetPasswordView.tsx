@@ -1,14 +1,17 @@
 import { AuthCard, ResetPasswordForm } from "@/features/auth";
+import { useTranslations } from "next-intl";
 
 export function ResetPasswordView() {
+  const t = useTranslations("auth.card.resetPassword");
+
   return (
     <main className="flex min-h-screen items-center justify-center p-4">
       <AuthCard
-        title="Choose a new password"
-        description="Use at least 8 characters."
-        footerText="Back to"
+        title={t("title")}
+        description={t("description")}
+        footerText={t("footerText")}
         footerHref="/sign-in"
-        footerLabel="sign in"
+        footerLabel={t("footerLabel")}
       >
         <ResetPasswordForm />
       </AuthCard>

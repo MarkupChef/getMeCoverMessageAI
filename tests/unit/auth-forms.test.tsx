@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SignInForm, SignUpForm } from "@/features/auth";
 import { signInAction, signUpAction } from "@/features/auth/api/actions";
+import { renderWithIntl } from "./render-with-intl";
 
 vi.mock("@/features/auth/api/actions", () => ({
   signInAction: vi.fn(),
@@ -25,7 +26,7 @@ describe("auth forms", () => {
 
   it("shows sign in errors for empty fields without calling the server action", async () => {
     const user = userEvent.setup();
-    render(<SignInForm />);
+    renderWithIntl(<SignInForm />);
 
     await user.click(screen.getByRole("button", { name: "Sign in" }));
 
@@ -36,7 +37,7 @@ describe("auth forms", () => {
 
   it("shows sign up errors for empty fields without calling the server action", async () => {
     const user = userEvent.setup();
-    render(<SignUpForm />);
+    renderWithIntl(<SignUpForm />);
 
     await user.click(screen.getByRole("button", { name: "Create account" }));
 
@@ -49,7 +50,7 @@ describe("auth forms", () => {
 
   it("shows meaningful errors for invalid sign in values", async () => {
     const user = userEvent.setup();
-    render(<SignInForm />);
+    renderWithIntl(<SignInForm />);
 
     await user.type(screen.getByLabelText("Email"), "bad-email");
     await user.type(screen.getByLabelText("Password"), "short");
@@ -65,7 +66,7 @@ describe("auth forms", () => {
     vi.mocked(signInAction).mockImplementation(
       () => new Promise((resolve) => setTimeout(() => resolve({ ok: false }), 50)),
     );
-    render(<SignInForm />);
+    renderWithIntl(<SignInForm />);
 
     await user.type(screen.getByLabelText("Email"), "jane@example.com");
     await user.type(screen.getByLabelText("Password"), "password123");
@@ -77,7 +78,7 @@ describe("auth forms", () => {
   });
 
   it("renders Google sign in as a POST form", () => {
-    render(<SignInForm />);
+    renderWithIntl(<SignInForm />);
 
     const googleButton = screen.getByRole("button", { name: "Continue with Google" });
     const googleForm = googleButton.closest("form");

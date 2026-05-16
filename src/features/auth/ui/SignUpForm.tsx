@@ -1,7 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
+import { useMemo, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Button } from "@/shared/ui/button";
@@ -10,12 +11,31 @@ import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { Spinner } from "@/shared/ui/spinner";
 import { signUpAction } from "../api/actions";
-import { signUpSchema, type SignUpInput } from "../model/schema";
+import { createSignUpSchema, type SignUpInput } from "../model/schema";
 
 export function SignUpForm() {
+  const tActions = useTranslations("auth.actions");
+  const tFields = useTranslations("auth.fields");
+  const tMessages = useTranslations("auth.messages");
+  const tValidation = useTranslations("auth.validation");
   const [isPending, startTransition] = useTransition();
+  const schema = useMemo(
+    () =>
+      createSignUpSchema({
+        emailRequired: tValidation("emailRequired"),
+        emailInvalid: tValidation("emailInvalid"),
+        passwordRequired: tValidation("passwordRequired"),
+        passwordMin: tValidation("passwordMin"),
+        fullNameRequired: tValidation("fullNameRequired"),
+        fullNameMin: tValidation("fullNameMin"),
+        fullNameMax: tValidation("fullNameMax"),
+        confirmPasswordRequired: tValidation("confirmPasswordRequired"),
+        passwordsMismatch: tValidation("passwordsMismatch"),
+      }),
+    [tValidation],
+  );
   const form = useForm<SignUpInput>({
-    resolver: zodResolver(signUpSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       fullName: "",
       email: "",
@@ -32,7 +52,7 @@ export function SignUpForm() {
         toast.success(result.message);
         form.reset();
       } else {
-        toast.error(result.message ?? "Unable to create account.");
+        toast.error(result.message ?? tMessages("unableCreateAccount"));
       }
     });
   }
@@ -46,7 +66,7 @@ export function SignUpForm() {
     >
       <FieldGroup>
         <Field data-invalid={Boolean(form.formState.errors.fullName)}>
-          <Label htmlFor="fullName">Full name</Label>
+          <Label htmlFor="fullName">{tFields("fullName")}</Label>
           <Input
             id="fullName"
             autoComplete="name"
@@ -58,7 +78,7 @@ export function SignUpForm() {
           ) : null}
         </Field>
         <Field data-invalid={Boolean(form.formState.errors.email)}>
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{tFields("email")}</Label>
           <Input
             id="email"
             autoComplete="email"
@@ -71,7 +91,7 @@ export function SignUpForm() {
           ) : null}
         </Field>
         <Field data-invalid={Boolean(form.formState.errors.password)}>
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{tFields("password")}</Label>
           <Input
             id="password"
             autoComplete="new-password"
@@ -84,7 +104,7 @@ export function SignUpForm() {
           ) : null}
         </Field>
         <Field data-invalid={Boolean(form.formState.errors.confirmPassword)}>
-          <Label htmlFor="confirmPassword">Confirm password</Label>
+          <Label htmlFor="confirmPassword">{tFields("confirmPassword")}</Label>
           <Input
             id="confirmPassword"
             autoComplete="new-password"
@@ -99,7 +119,7 @@ export function SignUpForm() {
       </FieldGroup>
       <Button disabled={isSubmitting} type="submit">
         {isSubmitting ? <Spinner data-icon="inline-start" /> : null}
-        Create account
+        {tActions("createAccount")}
       </Button>
     </form>
   );

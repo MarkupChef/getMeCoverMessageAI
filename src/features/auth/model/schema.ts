@@ -1,67 +1,108 @@
 import { z } from "zod";
 
-export const signInSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .min(1, "Email is required.")
-    .pipe(z.email("Enter a valid email address.")),
-  password: z
-    .string()
-    .min(1, "Password is required.")
-    .min(8, "Password must be at least 8 characters."),
-});
+export type AuthValidationMessages = {
+  emailRequired: string;
+  emailInvalid: string;
+  passwordRequired: string;
+  passwordMin: string;
+  fullNameRequired: string;
+  fullNameMin: string;
+  fullNameMax: string;
+  confirmPasswordRequired: string;
+  passwordsMismatch: string;
+};
 
-export const signUpSchema = z
-  .object({
-    fullName: z
-      .string()
-      .trim()
-      .min(1, "Full name is required.")
-      .min(2, "Full name must be at least 2 characters.")
-      .max(120, "Full name must be 120 characters or fewer."),
+export const defaultAuthValidationMessages: AuthValidationMessages = {
+  emailRequired: "Email is required.",
+  emailInvalid: "Enter a valid email address.",
+  passwordRequired: "Password is required.",
+  passwordMin: "Password must be at least 8 characters.",
+  fullNameRequired: "Full name is required.",
+  fullNameMin: "Full name must be at least 2 characters.",
+  fullNameMax: "Full name must be 120 characters or fewer.",
+  confirmPasswordRequired: "Confirm your password.",
+  passwordsMismatch: "Passwords do not match.",
+};
+
+export function createSignInSchema(messages: AuthValidationMessages) {
+  return z.object({
     email: z
       .string()
       .trim()
-      .min(1, "Email is required.")
-      .pipe(z.email("Enter a valid email address.")),
+      .min(1, messages.emailRequired)
+      .pipe(z.email(messages.emailInvalid)),
     password: z
       .string()
-      .min(1, "Password is required.")
-      .min(8, "Password must be at least 8 characters."),
-    confirmPassword: z
-      .string()
-      .min(1, "Confirm your password.")
-      .min(8, "Password must be at least 8 characters."),
-  })
-  .refine((value) => value.password === value.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Passwords do not match.",
+      .min(1, messages.passwordRequired)
+      .min(8, messages.passwordMin),
   });
+}
 
-export const forgotPasswordSchema = z.object({
-  email: z
-    .string()
-    .trim()
-    .min(1, "Email is required.")
-    .pipe(z.email("Enter a valid email address.")),
-});
+export function createSignUpSchema(messages: AuthValidationMessages) {
+  return z
+    .object({
+      fullName: z
+        .string()
+        .trim()
+        .min(1, messages.fullNameRequired)
+        .min(2, messages.fullNameMin)
+        .max(120, messages.fullNameMax),
+      email: z
+        .string()
+        .trim()
+        .min(1, messages.emailRequired)
+        .pipe(z.email(messages.emailInvalid)),
+      password: z
+        .string()
+        .min(1, messages.passwordRequired)
+        .min(8, messages.passwordMin),
+      confirmPassword: z
+        .string()
+        .min(1, messages.confirmPasswordRequired)
+        .min(8, messages.passwordMin),
+    })
+    .refine((value) => value.password === value.confirmPassword, {
+      path: ["confirmPassword"],
+      message: messages.passwordsMismatch,
+    });
+}
 
-export const resetPasswordSchema = z
-  .object({
-    password: z
+export function createForgotPasswordSchema(messages: AuthValidationMessages) {
+  return z.object({
+    email: z
       .string()
-      .min(1, "Password is required.")
-      .min(8, "Password must be at least 8 characters."),
-    confirmPassword: z
-      .string()
-      .min(1, "Confirm your password.")
-      .min(8, "Password must be at least 8 characters."),
-  })
-  .refine((value) => value.password === value.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Passwords do not match.",
+      .trim()
+      .min(1, messages.emailRequired)
+      .pipe(z.email(messages.emailInvalid)),
   });
+}
+
+export function createResetPasswordSchema(messages: AuthValidationMessages) {
+  return z
+    .object({
+      password: z
+        .string()
+        .min(1, messages.passwordRequired)
+        .min(8, messages.passwordMin),
+      confirmPassword: z
+        .string()
+        .min(1, messages.confirmPasswordRequired)
+        .min(8, messages.passwordMin),
+    })
+    .refine((value) => value.password === value.confirmPassword, {
+      path: ["confirmPassword"],
+      message: messages.passwordsMismatch,
+    });
+}
+
+export const signInSchema = createSignInSchema(defaultAuthValidationMessages);
+export const signUpSchema = createSignUpSchema(defaultAuthValidationMessages);
+export const forgotPasswordSchema = createForgotPasswordSchema(
+  defaultAuthValidationMessages,
+);
+export const resetPasswordSchema = createResetPasswordSchema(
+  defaultAuthValidationMessages,
+);
 
 export type SignInInput = z.infer<typeof signInSchema>;
 export type SignUpInput = z.infer<typeof signUpSchema>;

@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("public home loads", async ({ page }) => {
   await page.goto("/");
+  await expect(page).toHaveURL("http://127.0.0.1:3100/");
   await expect(page.getByRole("heading", { name: /scalable SaaS foundation/i })).toBeVisible();
 });
 
@@ -67,4 +68,19 @@ test("forgot password page loads", async ({ page }) => {
 test("dashboard redirects unauthenticated users", async ({ page }) => {
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/sign-in$/);
+});
+
+test("prefixed dashboard redirects unauthenticated users to prefixed sign in", async ({ page }) => {
+  await page.goto("/uk/dashboard");
+  await expect(page).toHaveURL(/\/uk\/sign-in$/);
+});
+
+test("language switcher changes the active locale", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Language").selectOption("uk");
+
+  await expect(page).toHaveURL("http://127.0.0.1:3100/uk");
+
+  await page.getByLabel("Мова").selectOption("en");
+  await expect(page).toHaveURL("http://127.0.0.1:3100/");
 });

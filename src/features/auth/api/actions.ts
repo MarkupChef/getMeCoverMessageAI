@@ -1,13 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { getLocale, getTranslations } from "next-intl/server";
 import { getPublicEnv, hasPublicEnv } from "@/shared/config/env";
 import { createSupabaseServerClient } from "@/shared/api/supabase/server";
+import { getLocalizedPath as buildLocalizedPath, type Locale } from "@/shared/i18n";
 import {
-  forgotPasswordSchema,
-  resetPasswordSchema,
-  signInSchema,
-  signUpSchema,
+  createForgotPasswordSchema,
+  createResetPasswordSchema,
+  createSignInSchema,
+  createSignUpSchema,
   type ForgotPasswordInput,
   type ResetPasswordInput,
   type SignInInput,
@@ -23,15 +25,44 @@ export type OAuthRedirectState = AuthActionState & {
   url?: string;
 };
 
+async function getAuthMessages() {
+  const [validation, messages] = await Promise.all([
+    getTranslations("auth.validation"),
+    getTranslations("auth.messages"),
+  ]);
+
+  return {
+    validation: {
+      emailRequired: validation("emailRequired"),
+      emailInvalid: validation("emailInvalid"),
+      passwordRequired: validation("passwordRequired"),
+      passwordMin: validation("passwordMin"),
+      fullNameRequired: validation("fullNameRequired"),
+      fullNameMin: validation("fullNameMin"),
+      fullNameMax: validation("fullNameMax"),
+      confirmPasswordRequired: validation("confirmPasswordRequired"),
+      passwordsMismatch: validation("passwordsMismatch"),
+    },
+    messages,
+  };
+}
+
+async function getCurrentLocalizedPath(pathname: `/${string}`) {
+  const locale = (await getLocale()) as Locale;
+
+  return buildLocalizedPath(locale, pathname);
+}
+
 export async function signInAction(input: SignInInput): Promise<AuthActionState> {
-  const parsed = signInSchema.safeParse(input);
+  const { validation, messages } = await getAuthMessages();
+  const parsed = createSignInSchema(validation).safeParse(input);
 
   if (!parsed.success) {
-    return { ok: false, message: "Check your email and password." };
+    return { ok: false, message: messages("checkEmailPassword") };
   }
 
   if (!hasPublicEnv()) {
-    return { ok: false, message: "Authentication is not configured." };
+    return { ok: false, message: messages("authNotConfigured") };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -41,28 +72,32 @@ export async function signInAction(input: SignInInput): Promise<AuthActionState>
     return { ok: false, message: error.message };
   }
 
-  redirect("/dashboard");
+  redirect(await getCurrentLocalizedPath("/dashboard"));
 }
 
 export async function signUpAction(input: SignUpInput): Promise<AuthActionState> {
-  const parsed = signUpSchema.safeParse(input);
+  const { validation, messages } = await getAuthMessages();
+  const parsed = createSignUpSchema(validation).safeParse(input);
 
   if (!parsed.success) {
-    return { ok: false, message: "Check the submitted account details." };
+    return { ok: false, message: messages("checkAccountDetails") };
   }
 
   if (!hasPublicEnv()) {
-    return { ok: false, message: "Authentication is not configured." };
+    return { ok: false, message: messages("authNotConfigured") };
   }
 
   const env = getPublicEnv();
+  const locale = (await getLocale()) as Locale;
+  const callbackPath = buildLocalizedPath(locale, "/auth/callback");
+  const dashboardPath = buildLocalizedPath(locale, "/dashboard");
   const supabase = await createSupabaseServerClient();
   const { email, password, fullName } = parsed.data;
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/dashboard`,
+      emailRedirectTo: `${env.NEXT_PUBLIC_APP_URL}${callbackPath}?next=${dashboardPath}`,
       data: {
         full_name: fullName,
       },
@@ -75,26 +110,31 @@ export async function signUpAction(input: SignUpInput): Promise<AuthActionState>
 
   return {
     ok: true,
-    message: "Check your inbox to confirm your account.",
+    message: messages("confirmAccount"),
   };
 }
 
 export async function createGoogleOAuthRedirect(): Promise<OAuthRedirectState> {
+  const messages = await getTranslations("auth.messages");
+
   if (!hasPublicEnv()) {
-    return { ok: false, message: "Google sign in is not configured." };
+    return { ok: false, message: messages("googleNotConfigured") };
   }
 
   const env = getPublicEnv();
+  const locale = (await getLocale()) as Locale;
+  const callbackPath = buildLocalizedPath(locale, "/auth/callback");
+  const dashboardPath = buildLocalizedPath(locale, "/dashboard");
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/dashboard`,
+      redirectTo: `${env.NEXT_PUBLIC_APP_URL}${callbackPath}?next=${dashboardPath}`,
     },
   });
 
   if (error || !data.url) {
-    return { ok: false, message: error?.message ?? "Unable to start Google sign in." };
+    return { ok: false, message: error?.message ?? messages("unableGoogle") };
   }
 
   return { ok: true, url: data.url };
@@ -113,32 +153,37 @@ export async function signInWithGoogleAction(): Promise<AuthActionState> {
 export async function forgotPasswordAction(
   input: ForgotPasswordInput,
 ): Promise<AuthActionState> {
-  const parsed = forgotPasswordSchema.safeParse(input);
+  const { validation, messages } = await getAuthMessages();
+  const parsed = createForgotPasswordSchema(validation).safeParse(input);
 
   if (!parsed.success) {
-    return { ok: false, message: "Enter a valid email address." };
+    return { ok: false, message: messages("validEmail") };
   }
 
   const env = getPublicEnv();
+  const locale = (await getLocale()) as Locale;
+  const callbackPath = buildLocalizedPath(locale, "/auth/callback");
+  const resetPasswordPath = buildLocalizedPath(locale, "/reset-password");
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/reset-password`,
+    redirectTo: `${env.NEXT_PUBLIC_APP_URL}${callbackPath}?next=${resetPasswordPath}`,
   });
 
   if (error) {
     return { ok: false, message: error.message };
   }
 
-  return { ok: true, message: "Password reset instructions were sent." };
+  return { ok: true, message: messages("resetInstructions") };
 }
 
 export async function resetPasswordAction(
   input: ResetPasswordInput,
 ): Promise<AuthActionState> {
-  const parsed = resetPasswordSchema.safeParse(input);
+  const { validation, messages } = await getAuthMessages();
+  const parsed = createResetPasswordSchema(validation).safeParse(input);
 
   if (!parsed.success) {
-    return { ok: false, message: "Check the new password." };
+    return { ok: false, message: messages("checkNewPassword") };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -150,11 +195,11 @@ export async function resetPasswordAction(
     return { ok: false, message: error.message };
   }
 
-  redirect("/dashboard");
+  redirect(await getCurrentLocalizedPath("/dashboard"));
 }
 
 export async function signOutAction() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
-  redirect("/sign-in");
+  redirect(await getCurrentLocalizedPath("/sign-in"));
 }

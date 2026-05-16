@@ -6,7 +6,7 @@ export async function POST(request: Request) {
 
   if (!result.ok || !result.url) {
     const signInUrl = new URL("/sign-in", request.url);
-    signInUrl.searchParams.set("authError", result.message ?? "Unable to start Google sign in.");
+    signInUrl.searchParams.set("authError", result.message ?? "");
 
     return NextResponse.redirect(signInUrl, 303);
   }

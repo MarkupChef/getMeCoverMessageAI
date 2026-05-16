@@ -1,8 +1,9 @@
 "use client";
 
 import { useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { LogOut, Settings, User } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useRouter } from "@/shared/i18n";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -17,12 +18,13 @@ import {
 
 export function UserMenu({ email }: { email: string }) {
   const router = useRouter();
+  const t = useTranslations("dashboard.userMenu");
   const [isSigningOut, startSignOutTransition] = useTransition();
   const initials = email.slice(0, 2).toUpperCase();
 
   function handleSignOut() {
     startSignOutTransition(async () => {
-      await fetch("/auth/sign-out", {
+      await fetch("./auth/sign-out", {
         method: "POST",
       });
 
@@ -47,11 +49,11 @@ export function UserMenu({ email }: { email: string }) {
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <User data-icon="inline-start" />
-            Profile
+            {t("profile")}
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Settings data-icon="inline-start" />
-            Settings
+            {t("settings")}
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -63,7 +65,7 @@ export function UserMenu({ email }: { email: string }) {
           }}
         >
           <LogOut data-icon="inline-start" />
-          Sign out
+          {t("signOut")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

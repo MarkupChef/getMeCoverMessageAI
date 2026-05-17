@@ -6,6 +6,14 @@ test("public home loads", async ({ page }) => {
   await expect(page.getByRole("heading", { name: /scalable SaaS foundation/i })).toBeVisible();
 });
 
+test("default locale prefix redirects to canonical unprefixed routes", async ({ page }) => {
+  await page.goto("/en");
+  await expect(page).toHaveURL("http://127.0.0.1:3100/");
+
+  await page.goto("/en/sign-in");
+  await expect(page).toHaveURL("http://127.0.0.1:3100/sign-in");
+});
+
 test("sign in page loads", async ({ page }) => {
   await page.goto("/sign-in");
   await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
@@ -91,6 +99,6 @@ test("language switcher changes the active locale", async ({ page }) => {
 
   await expect(page).toHaveURL("http://127.0.0.1:3100/uk");
 
-  await page.getByLabel("Мова").selectOption("en");
+  await page.getByRole("combobox").selectOption("en");
   await expect(page).toHaveURL("http://127.0.0.1:3100/");
 });

@@ -75,6 +75,16 @@ test("prefixed dashboard redirects unauthenticated users to prefixed sign in", a
   await expect(page).toHaveURL(/\/uk\/sign-in$/);
 });
 
+test("profile redirects unauthenticated users", async ({ page }) => {
+  await page.goto("/profile");
+  await expect(page).toHaveURL(/\/sign-in$/);
+});
+
+test("prefixed profile redirects unauthenticated users to prefixed sign in", async ({ page }) => {
+  await page.goto("/uk/profile");
+  await expect(page).toHaveURL(/\/uk\/sign-in$/);
+});
+
 test("language switcher changes the active locale", async ({ page }) => {
   await page.goto("/");
   await page.getByLabel("Language").selectOption("uk");

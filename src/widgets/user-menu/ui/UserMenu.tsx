@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { LogOut, Settings, User } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useRouter } from "@/shared/i18n";
+import { Link, useRouter } from "@/shared/i18n";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -47,13 +47,17 @@ export function UserMenu({ email }: { email: string }) {
         <DropdownMenuLabel className="truncate">{email}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>
-            <User data-icon="inline-start" />
-            {t("profile")}
+          <DropdownMenuItem asChild>
+            <Link href="/profile">
+              <User data-icon="inline-start" />
+              {t("profile")}
+            </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings data-icon="inline-start" />
-            {t("settings")}
+          <DropdownMenuItem asChild>
+            <Link href="/settings">
+              <Settings data-icon="inline-start" />
+              {t("settings")}
+            </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

@@ -29,6 +29,7 @@ export interface Database {
           avatar_url?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       billing_customers: {
         Row: {
@@ -46,6 +47,7 @@ export interface Database {
         Update: {
           provider_customer_id?: string;
         };
+        Relationships: [];
       };
       billing_subscriptions: {
         Row: {
@@ -71,6 +73,75 @@ export interface Database {
           current_period_end?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
+      };
+      deleted_user_guards: {
+        Row: {
+          id: string;
+          email_hash: string | null;
+          user_id_hash: string | null;
+          ip_hash: string | null;
+          device_hash: string | null;
+          free_generations_used: number;
+          deleted_at: string;
+          expires_at: string;
+          reason: string;
+        };
+        Insert: {
+          id?: string;
+          email_hash?: string | null;
+          user_id_hash?: string | null;
+          ip_hash?: string | null;
+          device_hash?: string | null;
+          free_generations_used?: number;
+          deleted_at?: string;
+          expires_at: string;
+          reason?: string;
+        };
+        Update: {
+          email_hash?: string | null;
+          user_id_hash?: string | null;
+          ip_hash?: string | null;
+          device_hash?: string | null;
+          free_generations_used?: number;
+          expires_at?: string;
+          reason?: string;
+        };
+        Relationships: [];
+      };
+      usage_limits: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          anonymous_id_hash: string | null;
+          email_hash: string | null;
+          ip_hash: string | null;
+          free_generations_used: number;
+          free_generations_limit: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          anonymous_id_hash?: string | null;
+          email_hash?: string | null;
+          ip_hash?: string | null;
+          free_generations_used?: number;
+          free_generations_limit: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string | null;
+          anonymous_id_hash?: string | null;
+          email_hash?: string | null;
+          ip_hash?: string | null;
+          free_generations_used?: number;
+          free_generations_limit?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
     };
     Views: Record<string, never>;

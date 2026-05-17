@@ -1,7 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { initializeAuthenticatedUsageIfConfigured } from "@/entities/usage";
 import { createSupabaseServerClient } from "@/shared/api/supabase/server";
 import { hasPublicEnv } from "@/shared/config/env";
 import { getLocalizedPath, getSupportedLocale } from "@/shared/i18n";
+import { getClientIpFromHeaders } from "@/shared/lib/request";
 
 type AuthCallbackRouteContext = {
   params: Promise<{
@@ -18,7 +20,15 @@ export async function GET(request: NextRequest, context: AuthCallbackRouteContex
 
   if (code && hasPublicEnv()) {
     const supabase = await createSupabaseServerClient();
-    await supabase.auth.exchangeCodeForSession(code);
+    const { data } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (data.user?.email) {
+      await initializeAuthenticatedUsageIfConfigured({
+        userId: data.user.id,
+        email: data.user.email,
+        ip: getClientIpFromHeaders(request.headers),
+      });
+    }
   }
 
   return NextResponse.redirect(new URL(next, requestUrl.origin));

@@ -1,10 +1,13 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
+import { initializeAuthenticatedUsageIfConfigured } from "@/entities/usage";
 import { getPublicEnv, hasPublicEnv } from "@/shared/config/env";
 import { createSupabaseServerClient } from "@/shared/api/supabase/server";
 import { getLocalizedPath as buildLocalizedPath, type Locale } from "@/shared/i18n";
+import { getClientIpFromHeaders } from "@/shared/lib/request";
 import {
   createForgotPasswordSchema,
   createResetPasswordSchema,
@@ -93,7 +96,7 @@ export async function signUpAction(input: SignUpInput): Promise<AuthActionState>
   const dashboardPath = buildLocalizedPath(locale, "/dashboard");
   const supabase = await createSupabaseServerClient();
   const { email, password, fullName } = parsed.data;
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -106,6 +109,14 @@ export async function signUpAction(input: SignUpInput): Promise<AuthActionState>
 
   if (error) {
     return { ok: false, message: error.message };
+  }
+
+  if (data.user?.id && data.user.email) {
+    await initializeAuthenticatedUsageIfConfigured({
+      userId: data.user.id,
+      email: data.user.email,
+      ip: getClientIpFromHeaders(await headers()),
+    });
   }
 
   return {

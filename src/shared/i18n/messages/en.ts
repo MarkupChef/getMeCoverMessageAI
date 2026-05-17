@@ -49,6 +49,7 @@ const en = {
     sidebar: {
       overview: "Overview",
       analytics: "Analytics",
+      profile: "Profile",
       billing: "Billing",
       settings: "Settings",
     },
@@ -105,6 +106,49 @@ const en = {
       statusLabel: "Subscription status",
       statusValue: "Not configured",
       note: "Add Checkout, Customer Portal, and webhooks when pricing is defined.",
+    },
+  },
+  profile: {
+    title: "Profile",
+    description: "Manage your account details and deletion controls.",
+    account: {
+      title: "Account details",
+      description: "Basic details from your signed-in account.",
+      email: "Email",
+      fullName: "Full name",
+      emptyFullName: "Not set",
+    },
+    usage: {
+      title: "Usage limits",
+      description: "Free generation usage attached to this account.",
+      free: "Free generations",
+      value: "{used} / {limit}",
+      unavailable: "Not configured",
+    },
+    danger: {
+      title: "Delete account",
+      description:
+        "Permanently delete your account and personal profile data.",
+      retentionNotice:
+        "Your account and personal data will be deleted. Some hashed technical data may be retained for up to 180 days to prevent abuse and repeated free-limit resets.",
+    },
+  },
+  deleteAccount: {
+    trigger: "Delete account",
+    dialog: {
+      title: "Delete account",
+      description:
+        "This action cannot be undone. Type your account email to confirm deletion.",
+      emailLabel: "Account email",
+      confirm: "Delete account",
+    },
+    validation: {
+      emailRequired: "Enter your current email to confirm account deletion.",
+      emailMismatch: "The email does not match the signed-in account.",
+    },
+    messages: {
+      deleted: "Your account has been deleted.",
+      unableDelete: "Unable to delete account.",
     },
   },
   auth: {

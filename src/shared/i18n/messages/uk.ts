@@ -51,6 +51,7 @@ const uk = {
     sidebar: {
       overview: "Огляд",
       analytics: "Аналітика",
+      profile: "Профіль",
       billing: "Білінг",
       settings: "Налаштування",
     },
@@ -107,6 +108,48 @@ const uk = {
       statusLabel: "Статус підписки",
       statusValue: "Не налаштовано",
       note: "Додайте Checkout, Customer Portal і webhooks після визначення цін.",
+    },
+  },
+  profile: {
+    title: "Профіль",
+    description: "Керуйте даними акаунта та видаленням.",
+    account: {
+      title: "Дані акаунта",
+      description: "Основні дані вашого поточного акаунта.",
+      email: "Email",
+      fullName: "Повне ім'я",
+      emptyFullName: "Не вказано",
+    },
+    usage: {
+      title: "Ліміти використання",
+      description: "Безкоштовні генерації, прив'язані до цього акаунта.",
+      free: "Безкоштовні генерації",
+      value: "{used} / {limit}",
+      unavailable: "Не налаштовано",
+    },
+    danger: {
+      title: "Видалити акаунт",
+      description: "Назавжди видалити акаунт і персональні дані профілю.",
+      retentionNotice:
+        "Ваш акаунт і персональні дані буде видалено. Деякі хешовані технічні дані можуть зберігатися до 180 днів, щоб запобігати зловживанням і повторному скиданню безкоштовних лімітів.",
+    },
+  },
+  deleteAccount: {
+    trigger: "Видалити акаунт",
+    dialog: {
+      title: "Видалити акаунт",
+      description:
+        "Цю дію не можна скасувати. Введіть email акаунта, щоб підтвердити видалення.",
+      emailLabel: "Email акаунта",
+      confirm: "Видалити акаунт",
+    },
+    validation: {
+      emailRequired: "Введіть поточний email, щоб підтвердити видалення акаунта.",
+      emailMismatch: "Email не збігається з поточним акаунтом.",
+    },
+    messages: {
+      deleted: "Ваш акаунт видалено.",
+      unableDelete: "Не вдалося видалити акаунт.",
     },
   },
   auth: {

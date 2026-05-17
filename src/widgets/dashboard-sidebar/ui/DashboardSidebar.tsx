@@ -1,4 +1,4 @@
-import { BarChart3, CreditCard, Home, Settings } from "lucide-react";
+import { BarChart3, CreditCard, Home, Settings, User } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/shared/i18n";
 import { cn } from "@/shared/lib/utils";
@@ -8,6 +8,7 @@ import { Separator } from "@/shared/ui/separator";
 const navigation = [
   { href: "/dashboard", labelKey: "overview", icon: Home },
   { href: "/dashboard", labelKey: "analytics", icon: BarChart3 },
+  { href: "/profile", labelKey: "profile", icon: User },
   { href: "/settings", labelKey: "billing", icon: CreditCard },
   { href: "/settings", labelKey: "settings", icon: Settings },
 ] as const;

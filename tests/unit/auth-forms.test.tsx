@@ -1,6 +1,7 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { toast } from "sonner";
 import { SignInForm, SignUpForm } from "@/features/auth";
 import { signInAction, signUpAction } from "@/features/auth/api/actions";
 import { renderWithIntl } from "./render-with-intl";
@@ -21,6 +22,8 @@ describe("auth forms", () => {
   beforeEach(() => {
     vi.mocked(signInAction).mockReset();
     vi.mocked(signUpAction).mockReset();
+    vi.mocked(toast.error).mockReset();
+    vi.mocked(toast.success).mockReset();
     window.history.replaceState(null, "", "/");
   });
 
@@ -46,6 +49,28 @@ describe("auth forms", () => {
     expect(screen.getAllByText("Password is required.")).toHaveLength(1);
     expect(screen.getByText("Confirm your password.")).toBeInTheDocument();
     expect(signUpAction).not.toHaveBeenCalled();
+  });
+
+  it("shows the neutral signup success message from the server action", async () => {
+    const user = userEvent.setup();
+    vi.mocked(signUpAction).mockResolvedValue({
+      ok: true,
+      message:
+        "Check your inbox. If an account can be created, we sent an email to continue.",
+    });
+    renderWithIntl(<SignUpForm />);
+
+    await user.type(screen.getByLabelText("Full name"), "Jane Doe");
+    await user.type(screen.getByLabelText("Email"), "jane@example.com");
+    await user.type(screen.getByLabelText("Password"), "password123");
+    await user.type(screen.getByLabelText("Confirm password"), "password123");
+    await user.click(screen.getByRole("button", { name: "Create account" }));
+
+    await waitFor(() => {
+      expect(toast.success).toHaveBeenCalledWith(
+        "Check your inbox. If an account can be created, we sent an email to continue.",
+      );
+    });
   });
 
   it("shows meaningful errors for invalid sign in values", async () => {

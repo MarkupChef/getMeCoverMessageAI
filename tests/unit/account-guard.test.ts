@@ -1,9 +1,12 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { createDeleteAccountSchema } from "@/features/delete-account";
 import { deleteCurrentAccount } from "@/features/delete-account/api/delete-account";
 import {
   createHmacSha256,
   getAuthenticatedUsageCountIfAvailable,
+  initializeAuthenticatedUsage,
   isMissingAccountStorageError,
   resolveFreeGenerationsUsedFromGuards,
 } from "@/entities/usage";
@@ -61,6 +64,18 @@ describe("account guard", () => {
     ).toBe(false);
   });
 
+  it("keeps the profile creation trigger idempotent", () => {
+    const migration = readFileSync(
+      join(
+        process.cwd(),
+        "supabase/migrations/20260517231011_make_profile_trigger_idempotent.sql",
+      ),
+      "utf8",
+    );
+
+    expect(migration).toContain("on conflict (id) do nothing");
+  });
+
   it("returns unavailable usage instead of throwing when storage is missing", async () => {
     const consoleError = vi
       .spyOn(console, "error")
@@ -85,6 +100,86 @@ describe("account guard", () => {
       getAuthenticatedUsageCountIfAvailable("user-id", client as never),
     ).resolves.toBeNull();
     consoleError.mockRestore();
+  });
+
+  it("initializes authenticated usage through an idempotent user_id upsert", async () => {
+    const originalSecret = process.env.ACCOUNT_GUARD_HMAC_SECRET;
+    const originalUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const originalServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    process.env.ACCOUNT_GUARD_HMAC_SECRET = "a".repeat(32);
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.SUPABASE_SERVICE_ROLE_KEY = "service-role-key";
+
+    const upsert = vi.fn().mockResolvedValue({ error: null });
+    const client = {
+      from: vi.fn((table: string) => {
+        if (table === "deleted_user_guards") {
+          return {
+            select: () => ({
+              eq: () => ({
+                gt: () => ({
+                  order: () => ({
+                    limit: () => ({
+                      maybeSingle: async () => ({
+                        data: { free_generations_used: 3 },
+                        error: null,
+                      }),
+                    }),
+                  }),
+                }),
+              }),
+            }),
+          };
+        }
+
+        return { upsert };
+      }),
+    };
+
+    try {
+      await initializeAuthenticatedUsage({
+        userId: "00000000-0000-0000-0000-000000000001",
+        email: "jane@example.com",
+        ip: "127.0.0.1",
+        client: client as never,
+      });
+      await initializeAuthenticatedUsage({
+        userId: "00000000-0000-0000-0000-000000000001",
+        email: "jane@example.com",
+        ip: "127.0.0.1",
+        client: client as never,
+      });
+
+      expect(upsert).toHaveBeenCalledTimes(2);
+      expect(upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          user_id: "00000000-0000-0000-0000-000000000001",
+          free_generations_used: 3,
+        }),
+        {
+          onConflict: "user_id",
+          ignoreDuplicates: true,
+        },
+      );
+    } finally {
+      if (originalSecret === undefined) {
+        delete process.env.ACCOUNT_GUARD_HMAC_SECRET;
+      } else {
+        process.env.ACCOUNT_GUARD_HMAC_SECRET = originalSecret;
+      }
+
+      if (originalUrl === undefined) {
+        delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+      } else {
+        process.env.NEXT_PUBLIC_SUPABASE_URL = originalUrl;
+      }
+
+      if (originalServiceRole === undefined) {
+        delete process.env.SUPABASE_SERVICE_ROLE_KEY;
+      } else {
+        process.env.SUPABASE_SERVICE_ROLE_KEY = originalServiceRole;
+      }
+    }
   });
 
   it("writes a hashed guard record before deleting the Supabase auth user", async () => {

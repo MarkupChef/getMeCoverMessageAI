@@ -207,13 +207,14 @@ const en = {
     },
     messages: {
       unableSignIn: "Unable to sign in.",
-      unableCreateAccount: "Unable to create account.",
+      unableCreateAccount: "Unable to create account. Try again later.",
       unableSendResetEmail: "Unable to send reset email.",
       unableUpdatePassword: "Unable to update password.",
       checkEmailPassword: "Check your email and password.",
       authNotConfigured: "Authentication is not configured.",
       checkAccountDetails: "Check the submitted account details.",
-      confirmAccount: "Check your inbox to confirm your account.",
+      confirmAccount:
+        "Check your inbox. If an account can be created, we sent an email to continue.",
       googleNotConfigured: "Google sign in is not configured.",
       unableGoogle: "Unable to start Google sign in.",
       validEmail: "Enter a valid email address.",

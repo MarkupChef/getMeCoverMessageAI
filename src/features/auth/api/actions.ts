@@ -1,13 +1,10 @@
 "use server";
 
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getLocale, getTranslations } from "next-intl/server";
-import { initializeAuthenticatedUsageIfConfigured } from "@/entities/usage";
 import { getPublicEnv, hasPublicEnv } from "@/shared/config/env";
 import { createSupabaseServerClient } from "@/shared/api/supabase/server";
 import { getLocalizedPath as buildLocalizedPath, type Locale } from "@/shared/i18n";
-import { getClientIpFromHeaders } from "@/shared/lib/request";
 import {
   createForgotPasswordSchema,
   createResetPasswordSchema,
@@ -56,6 +53,24 @@ async function getCurrentLocalizedPath(pathname: `/${string}`) {
   return buildLocalizedPath(locale, pathname);
 }
 
+function isDuplicateSignUpError(error: { code?: string; message?: string } | null) {
+  if (!error) {
+    return false;
+  }
+
+  const code = error.code?.toLowerCase() ?? "";
+  const message = error.message?.toLowerCase() ?? "";
+
+  return (
+    code.includes("already") ||
+    code.includes("exists") ||
+    message.includes("already registered") ||
+    message.includes("already exists") ||
+    message.includes("user already") ||
+    message.includes("email already")
+  );
+}
+
 export async function signInAction(input: SignInInput): Promise<AuthActionState> {
   const { validation, messages } = await getAuthMessages();
   const parsed = createSignInSchema(validation).safeParse(input);
@@ -96,7 +111,7 @@ export async function signUpAction(input: SignUpInput): Promise<AuthActionState>
   const dashboardPath = buildLocalizedPath(locale, "/dashboard");
   const supabase = await createSupabaseServerClient();
   const { email, password, fullName } = parsed.data;
-  const { data, error } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -108,15 +123,17 @@ export async function signUpAction(input: SignUpInput): Promise<AuthActionState>
   });
 
   if (error) {
-    return { ok: false, message: error.message };
-  }
+    if (isDuplicateSignUpError(error)) {
+      return { ok: true, message: messages("confirmAccount") };
+    }
 
-  if (data.user?.id && data.user.email) {
-    await initializeAuthenticatedUsageIfConfigured({
-      userId: data.user.id,
-      email: data.user.email,
-      ip: getClientIpFromHeaders(await headers()),
+    console.error("Supabase sign up failed.", {
+      code: error.code,
+      status: error.status,
+      name: error.name,
     });
+
+    return { ok: false, message: messages("unableCreateAccount") };
   }
 
   return {

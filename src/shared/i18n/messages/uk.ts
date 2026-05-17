@@ -208,13 +208,14 @@ const uk = {
     },
     messages: {
       unableSignIn: "Не вдалося увійти.",
-      unableCreateAccount: "Не вдалося створити акаунт.",
+      unableCreateAccount: "Не вдалося створити акаунт. Спробуйте пізніше.",
       unableSendResetEmail: "Не вдалося надіслати лист для скидання.",
       unableUpdatePassword: "Не вдалося оновити пароль.",
       checkEmailPassword: "Перевірте email і пароль.",
       authNotConfigured: "Автентифікацію не налаштовано.",
       checkAccountDetails: "Перевірте надіслані дані акаунта.",
-      confirmAccount: "Перевірте пошту, щоб підтвердити акаунт.",
+      confirmAccount:
+        "Перевірте пошту. Якщо акаунт можна створити, ми надіслали лист для продовження.",
       googleNotConfigured: "Вхід через Google не налаштовано.",
       unableGoogle: "Не вдалося почати вхід через Google.",
       validEmail: "Введіть коректну email-адресу.",

@@ -45,41 +45,19 @@ async function upsertAuthenticatedUsage(
     freeGenerationsUsed: number;
   },
 ) {
-  const { data: existing, error: selectError } = await client
-    .from("usage_limits")
-    .select("id")
-    .eq("user_id", input.userId)
-    .maybeSingle();
-
-  if (selectError) {
-    throw selectError;
-  }
-
-  if (existing) {
-    const { error } = await client
-      .from("usage_limits")
-      .update({
-        email_hash: input.emailHash,
-        ip_hash: input.ipHash,
-        free_generations_used: input.freeGenerationsUsed,
-        free_generations_limit: AUTHENTICATED_FREE_GENERATIONS_LIMIT,
-      })
-      .eq("id", existing.id);
-
-    if (error) {
-      throw error;
-    }
-
-    return;
-  }
-
-  const { error } = await client.from("usage_limits").insert({
-    user_id: input.userId,
-    email_hash: input.emailHash,
-    ip_hash: input.ipHash,
-    free_generations_used: input.freeGenerationsUsed,
-    free_generations_limit: AUTHENTICATED_FREE_GENERATIONS_LIMIT,
-  });
+  const { error } = await client.from("usage_limits").upsert(
+    {
+      user_id: input.userId,
+      email_hash: input.emailHash,
+      ip_hash: input.ipHash,
+      free_generations_used: input.freeGenerationsUsed,
+      free_generations_limit: AUTHENTICATED_FREE_GENERATIONS_LIMIT,
+    },
+    {
+      onConflict: "user_id",
+      ignoreDuplicates: true,
+    },
+  );
 
   if (error) {
     throw error;

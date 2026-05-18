@@ -8,12 +8,12 @@ import {
 
 describe("i18n routing", () => {
   it("does not prefix default locale paths", () => {
-    expect(getLocalizedPath("en", "/dashboard")).toBe("/dashboard");
+    expect(getLocalizedPath("en", "/results")).toBe("/results");
     expect(getLocalizedPath("en", "/")).toBe("/");
   });
 
   it("prefixes non-default locale paths", () => {
-    expect(getLocalizedPath("uk", "/dashboard")).toBe("/uk/dashboard");
+    expect(getLocalizedPath("uk", "/results")).toBe("/uk/results");
     expect(getLocalizedPath("uk", "/")).toBe("/uk");
   });
 

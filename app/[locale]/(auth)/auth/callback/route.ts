@@ -16,7 +16,7 @@ export async function GET(request: NextRequest, context: AuthCallbackRouteContex
   const { locale: requestedLocale } = await context.params;
   const locale = getSupportedLocale(requestedLocale);
   const code = requestUrl.searchParams.get("code");
-  const next = requestUrl.searchParams.get("next") ?? getLocalizedPath(locale, "/dashboard");
+  const next = requestUrl.searchParams.get("next") ?? getLocalizedPath(locale, "/results");
 
   if (code && hasPublicEnv()) {
     const supabase = await createSupabaseServerClient();

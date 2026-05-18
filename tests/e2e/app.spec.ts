@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("public home loads", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL("http://127.0.0.1:3100/");
-  await expect(page.getByRole("heading", { name: /scalable SaaS foundation/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /your AI generator goes here/i })).toBeVisible();
 });
 
 test("default locale prefix redirects to canonical unprefixed routes", async ({ page }) => {
@@ -73,13 +73,13 @@ test("forgot password page loads", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Reset password" })).toBeVisible();
 });
 
-test("dashboard redirects unauthenticated users", async ({ page }) => {
-  await page.goto("/dashboard");
+test("results redirects unauthenticated users", async ({ page }) => {
+  await page.goto("/results");
   await expect(page).toHaveURL(/\/sign-in$/);
 });
 
-test("prefixed dashboard redirects unauthenticated users to prefixed sign in", async ({ page }) => {
-  await page.goto("/uk/dashboard");
+test("prefixed results redirects unauthenticated users to prefixed sign in", async ({ page }) => {
+  await page.goto("/uk/results");
   await expect(page).toHaveURL(/\/uk\/sign-in$/);
 });
 
@@ -91,6 +91,11 @@ test("profile redirects unauthenticated users", async ({ page }) => {
 test("prefixed profile redirects unauthenticated users to prefixed sign in", async ({ page }) => {
   await page.goto("/uk/profile");
   await expect(page).toHaveURL(/\/uk\/sign-in$/);
+});
+
+test("settings redirects unauthenticated users", async ({ page }) => {
+  await page.goto("/settings");
+  await expect(page).toHaveURL(/\/sign-in$/);
 });
 
 test("language switcher changes the active locale", async ({ page }) => {

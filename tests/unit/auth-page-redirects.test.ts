@@ -25,7 +25,7 @@ describe("auth page redirects", () => {
         params: Promise.resolve({ locale: "en" }),
         searchParams: Promise.resolve({}),
       }),
-    ).rejects.toThrow("NEXT_REDIRECT:/dashboard");
+    ).rejects.toThrow("NEXT_REDIRECT:/results");
   });
 
   it("redirects authenticated users away from localized sign up", async () => {
@@ -38,6 +38,6 @@ describe("auth page redirects", () => {
       SignUpPage({
         params: Promise.resolve({ locale: "uk" }),
       }),
-    ).rejects.toThrow("NEXT_REDIRECT:/uk/dashboard");
+    ).rejects.toThrow("NEXT_REDIRECT:/uk/results");
   });
 });

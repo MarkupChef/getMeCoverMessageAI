@@ -13,20 +13,22 @@ describe("HomeView", () => {
     );
 
     const signInLinks = screen.getAllByRole("link", { name: "Sign in" });
-    expect(signInLinks).toHaveLength(2);
+    expect(signInLinks).toHaveLength(1);
     expect(signInLinks.every((link) => link.getAttribute("href") === "/sign-in")).toBe(
       true,
-    );
-    expect(screen.getByRole("link", { name: "Create account" })).toHaveAttribute(
-      "href",
-      "/sign-up",
     );
     expect(screen.getByRole("link", { name: "Start with auth" })).toHaveAttribute(
       "href",
       "/sign-up",
     );
+    expect(screen.getByText("Your generator here")).toBeInTheDocument();
     expect(
-      screen.queryByRole("link", { name: "Open dashboard" }),
+      screen.getByRole("heading", {
+        name: "A scalable SaaS foundation with the boring parts already wired.",
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Open results" }),
     ).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Change theme" })).toBeInTheDocument();
   });
@@ -43,7 +45,14 @@ describe("HomeView", () => {
       </ThemeProvider>,
     );
 
-    expect(screen.getAllByRole("link", { name: "Open dashboard" })).toHaveLength(2);
+    expect(screen.getByRole("link", { name: "Results" })).toHaveAttribute(
+      "href",
+      "/results",
+    );
+    expect(screen.getByRole("link", { name: "Open results" })).toHaveAttribute(
+      "href",
+      "/results",
+    );
     expect(
       screen.getByRole("button", { name: /founder@example\.com/ }),
     ).toBeInTheDocument();

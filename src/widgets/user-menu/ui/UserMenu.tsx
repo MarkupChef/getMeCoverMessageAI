@@ -24,7 +24,7 @@ import {
 export function UserMenu({ email }: { email: string }) {
   const router = useRouter();
   const locale = useLocale() as Locale;
-  const t = useTranslations("dashboard.userMenu");
+  const t = useTranslations("userMenu");
   const [isSigningOut, startSignOutTransition] = useTransition();
   const initials = email.slice(0, 2).toUpperCase();
 

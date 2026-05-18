@@ -9,6 +9,15 @@ const en = {
     english: "English",
     ukrainian: "Ukrainian",
   },
+  siteHeader: {
+    results: "Results",
+    signIn: "Sign in",
+  },
+  userMenu: {
+    profile: "Profile",
+    settings: "Settings",
+    signOut: "Sign out",
+  },
   errors: {
     genericTitle: "Something went wrong",
     retry: "Try again",
@@ -22,13 +31,45 @@ const en = {
       createAccount: "Create account",
     },
     badge: "Next.js 16 + Supabase",
-    title: "A scalable SaaS foundation with the boring parts already wired.",
+    title: "Your AI generator goes here.",
+    hero: {
+      description:
+        "Start with the product interface first. Marketing and SEO sections stay below the working area.",
+    },
     description:
       "Auth, subscriptions, validation, layout, and database boundaries are in place so product features can be added without reshaping the app.",
     actions: {
-      dashboard: "Open dashboard",
+      results: "Open results",
       auth: "Start with auth",
     },
+    generator: {
+      title: "Your generator here",
+      description:
+        "This placeholder reserves the first-screen workspace for the future AI flow.",
+    },
+    about: {
+      badge: "About product",
+      title: "A scalable SaaS foundation with the boring parts already wired.",
+    },
+    howItWorks: {
+      title: "How it works",
+      description: "The final product flow will stay simple and direct.",
+      steps: {
+        open: {
+          title: "Open the generator",
+          description: "Users land on the product interface immediately.",
+        },
+        generate: {
+          title: "Generate a preview",
+          description: "Input data and preview the AI result before committing.",
+        },
+        save: {
+          title: "Save after sign in",
+          description: "Saved results live in the protected Results section.",
+        },
+      },
+    },
+    footer: "Built as a solo-user AI SaaS shell.",
     checklist: {
       title: "Scaffold checklist",
       description: "Core SaaS capabilities ready for product-specific slices.",
@@ -40,53 +81,23 @@ const en = {
       },
     },
   },
-  dashboard: {
-    shell: {
-      tagline: "Production-ready SaaS foundation",
-      navigation: "Navigation",
-      openNavigation: "Open navigation",
-    },
-    sidebar: {
-      overview: "Overview",
-      analytics: "Analytics",
-      profile: "Profile",
-      billing: "Billing",
-      settings: "Settings",
-    },
-    userMenu: {
-      profile: "Profile",
-      settings: "Settings",
-      signOut: "Sign out",
-    },
-    page: {
-      badge: "Protected route",
-      title: "Dashboard",
-      description:
-        "This shell is ready for product widgets, analytics, and user-scoped data.",
-      stats: {
-        usage: {
-          label: "Usage events",
-          value: "0",
-          note: "Connect product events later",
-        },
-        account: {
-          label: "Account",
-          value: "1",
-          note: "User-scoped data with RLS",
-        },
-        plan: {
-          label: "Plan",
-          value: "Free",
-          note: "Billing placeholder",
-        },
+  results: {
+    list: {
+      title: "Results",
+      description: "Saved AI results will appear here.",
+      empty: {
+        title: "No results yet",
+        description: "Create your first result.",
+        action: "Go to generator",
       },
-      targets: {
-        title: "Next implementation targets",
-        description: "Add real feature slices without changing the foundation.",
-        productEntities: "Connect product-specific entities",
-        profileSettings: "Add account profile settings",
-        stripe: "Add Stripe checkout and webhooks",
-        usage: "Track usage and subscription state",
+    },
+    detail: {
+      title: "Result",
+      description: "Saved result details will appear here.",
+      empty: {
+        title: "No result found",
+        description: "This placeholder will be connected to saved results later.",
+        action: "Back to results",
       },
     },
   },

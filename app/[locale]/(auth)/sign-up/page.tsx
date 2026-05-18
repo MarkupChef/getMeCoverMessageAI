@@ -17,7 +17,7 @@ export default async function SignUpPage({ params }: SignUpPageProps) {
   const authState = await getServerAuthState();
 
   if (authState.status === "authenticated") {
-    redirect(getLocalizedPath(locale, "/dashboard"));
+    redirect(getLocalizedPath(locale, "/results"));
   }
 
   return <SignUpView />;

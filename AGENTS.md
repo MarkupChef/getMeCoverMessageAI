@@ -177,7 +177,7 @@ All checks passed at the time this guide was created.
 ### Next.js: ALWAYS read docs before coding
 Before any Next.js work, find and read the relevant doc in `@node_modules/next/dist/docs/`. Your training data is outdated — the docs are the source of truth.
 <!-- END:nextjs-agent-rules -->
-
+- Always use skill 'react-best-practices' to follow best practices for building React applications white write the code.
 - Do not rewrite the architecture away from FSD without explicit user approval.
 - Keep `/app` route files thin and move page composition to `src/views`.
 - If adding new SaaS capabilities, start with entity schemas/types, then features, then widgets/views.

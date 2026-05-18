@@ -2,8 +2,13 @@
 
 import { useTransition } from "react";
 import { LogOut, Settings, User } from "lucide-react";
-import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/shared/i18n";
+import { useLocale, useTranslations } from "next-intl";
+import {
+  getLocalizedPath,
+  Link,
+  type Locale,
+  useRouter,
+} from "@/shared/i18n";
 import { Avatar, AvatarFallback } from "@/shared/ui/avatar";
 import { Button } from "@/shared/ui/button";
 import {
@@ -18,13 +23,14 @@ import {
 
 export function UserMenu({ email }: { email: string }) {
   const router = useRouter();
+  const locale = useLocale() as Locale;
   const t = useTranslations("dashboard.userMenu");
   const [isSigningOut, startSignOutTransition] = useTransition();
   const initials = email.slice(0, 2).toUpperCase();
 
   function handleSignOut() {
     startSignOutTransition(async () => {
-      await fetch("./auth/sign-out", {
+      await fetch(getLocalizedPath(locale, "/auth/sign-out"), {
         method: "POST",
       });
 

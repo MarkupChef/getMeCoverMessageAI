@@ -1,12 +1,12 @@
 import { redirect } from "next/navigation";
-import { DashboardLayout } from "@/app/layouts/DashboardLayout";
+import { ProtectedSiteLayout } from "@/app/layouts/ProtectedSiteLayout";
 import { createSupabaseServerClient } from "@/shared/api/supabase/server";
 import { hasPublicEnv } from "@/shared/config/env";
 import { getLocalizedPath, getSupportedLocale } from "@/shared/i18n";
 
 export const dynamic = "force-dynamic";
 
-export default async function ProtectedDashboardLayout({
+export default async function ProtectedAppLayout({
   children,
   params,
 }: {
@@ -33,8 +33,8 @@ export default async function ProtectedDashboardLayout({
   }
 
   return (
-    <DashboardLayout userEmail={user.email ?? "member@example.com"}>
+    <ProtectedSiteLayout userEmail={user.email ?? "member@example.com"}>
       {children}
-    </DashboardLayout>
+    </ProtectedSiteLayout>
   );
 }

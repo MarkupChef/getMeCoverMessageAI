@@ -23,7 +23,7 @@ export default async function SignInPage({
   const authState = await getServerAuthState();
 
   if (authState.status === "authenticated") {
-    redirect(getLocalizedPath(locale, "/dashboard"));
+    redirect(getLocalizedPath(locale, "/results"));
   }
 
   const query = await searchParams;

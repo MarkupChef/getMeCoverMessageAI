@@ -7,8 +7,8 @@ import { ProfileView } from "@/views/profile";
 import { createSupabaseAdminClient } from "@/shared/api/supabase/admin";
 import { createSupabaseServerClient } from "@/shared/api/supabase/server";
 import { hasPublicEnv } from "@/shared/config/env";
-import { getLocalizedPath, getSupportedLocale } from "@/shared/i18n";
 import { hasAccountDeletionEnv } from "@/shared/config/server-env";
+import { getLocalizedPath, getSupportedLocale } from "@/shared/i18n";
 
 export const dynamic = "force-dynamic";
 

@@ -90,7 +90,7 @@ export async function signInAction(input: SignInInput): Promise<AuthActionState>
     return { ok: false, message: error.message };
   }
 
-  redirect(await getCurrentLocalizedPath("/dashboard"));
+  redirect(await getCurrentLocalizedPath("/results"));
 }
 
 export async function signUpAction(input: SignUpInput): Promise<AuthActionState> {
@@ -108,14 +108,14 @@ export async function signUpAction(input: SignUpInput): Promise<AuthActionState>
   const env = getPublicEnv();
   const locale = (await getLocale()) as Locale;
   const callbackPath = buildLocalizedPath(locale, "/auth/callback");
-  const dashboardPath = buildLocalizedPath(locale, "/dashboard");
+  const resultsPath = buildLocalizedPath(locale, "/results");
   const supabase = await createSupabaseServerClient();
   const { email, password, fullName } = parsed.data;
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${env.NEXT_PUBLIC_APP_URL}${callbackPath}?next=${dashboardPath}`,
+      emailRedirectTo: `${env.NEXT_PUBLIC_APP_URL}${callbackPath}?next=${resultsPath}`,
       data: {
         full_name: fullName,
       },
@@ -152,12 +152,12 @@ export async function createGoogleOAuthRedirect(): Promise<OAuthRedirectState> {
   const env = getPublicEnv();
   const locale = (await getLocale()) as Locale;
   const callbackPath = buildLocalizedPath(locale, "/auth/callback");
-  const dashboardPath = buildLocalizedPath(locale, "/dashboard");
+  const resultsPath = buildLocalizedPath(locale, "/results");
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${env.NEXT_PUBLIC_APP_URL}${callbackPath}?next=${dashboardPath}`,
+      redirectTo: `${env.NEXT_PUBLIC_APP_URL}${callbackPath}?next=${resultsPath}`,
     },
   });
 
@@ -223,7 +223,7 @@ export async function resetPasswordAction(
     return { ok: false, message: error.message };
   }
 
-  redirect(await getCurrentLocalizedPath("/dashboard"));
+  redirect(await getCurrentLocalizedPath("/results"));
 }
 
 export async function signOutAction() {

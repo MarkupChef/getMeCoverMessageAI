@@ -9,10 +9,15 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-
-type Theme = "light" | "dark" | "system";
-
-type ResolvedTheme = Exclude<Theme, "system">;
+import {
+  DEFAULT_THEME,
+  isTheme,
+  type ResolvedTheme,
+  THEME_COOKIE_MAX_AGE,
+  THEME_DARK_MODE_QUERY,
+  THEME_STORAGE_KEY,
+  type Theme,
+} from "./theme-config";
 
 type ThemeContextValue = {
   theme: Theme;
@@ -20,15 +25,7 @@ type ThemeContextValue = {
   setTheme: (theme: Theme) => void;
 };
 
-const STORAGE_KEY = "theme";
-const DARK_MODE_QUERY = "(prefers-color-scheme: dark)";
-const DEFAULT_THEME: Theme = "system";
-
 const ThemeContext = createContext<ThemeContextValue | null>(null);
-
-function isTheme(value: string | null): value is Theme {
-  return value === "light" || value === "dark" || value === "system";
-}
 
 function getStoredTheme(): Theme {
   if (typeof window === "undefined") {
@@ -36,7 +33,7 @@ function getStoredTheme(): Theme {
   }
 
   try {
-    const storedTheme = window.localStorage.getItem(STORAGE_KEY);
+    const storedTheme = window.localStorage.getItem(THEME_STORAGE_KEY);
 
     return isTheme(storedTheme) ? storedTheme : DEFAULT_THEME;
   } catch {
@@ -49,14 +46,21 @@ function getSystemTheme(): ResolvedTheme {
     return "light";
   }
 
-  return window.matchMedia(DARK_MODE_QUERY).matches ? "dark" : "light";
+  return window.matchMedia(THEME_DARK_MODE_QUERY).matches ? "dark" : "light";
 }
 
 function applyTheme(resolvedTheme: ResolvedTheme) {
   const root = document.documentElement;
 
   root.classList.toggle("dark", resolvedTheme === "dark");
+  root.classList.toggle("light", resolvedTheme === "light");
   root.style.colorScheme = resolvedTheme;
+}
+
+function persistThemeCookie(theme: Theme) {
+  document.cookie = `${THEME_STORAGE_KEY}=${encodeURIComponent(
+    theme,
+  )}; path=/; max-age=${THEME_COOKIE_MAX_AGE}; samesite=lax`;
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -68,7 +72,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setThemeState(nextTheme);
 
     try {
-      window.localStorage.setItem(STORAGE_KEY, nextTheme);
+      window.localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+      persistThemeCookie(nextTheme);
     } catch {
       return;
     }
@@ -80,7 +85,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === STORAGE_KEY) {
+      if (event.key === THEME_STORAGE_KEY) {
         setThemeState(isTheme(event.newValue) ? event.newValue : DEFAULT_THEME);
       }
     };
@@ -111,7 +116,7 @@ function subscribeToSystemTheme(onStoreChange: () => void) {
     return () => {};
   }
 
-  const mediaQuery = window.matchMedia(DARK_MODE_QUERY);
+  const mediaQuery = window.matchMedia(THEME_DARK_MODE_QUERY);
 
   mediaQuery.addEventListener("change", onStoreChange);
 

@@ -30,7 +30,7 @@ describe("UserMenu", () => {
     await user.click(screen.getByRole("button", { name: /founder@example\.com/ }));
     await user.click(screen.getByRole("menuitem", { name: "Sign out" }));
 
-    expect(fetch).toHaveBeenCalledWith("./auth/sign-out", {
+    expect(fetch).toHaveBeenCalledWith("/auth/sign-out", {
       method: "POST",
     });
     expect(i18nRouter.replace).toHaveBeenCalledWith("/sign-in");

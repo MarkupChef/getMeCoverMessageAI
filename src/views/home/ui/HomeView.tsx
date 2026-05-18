@@ -1,6 +1,9 @@
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import type { ServerAuthState } from "@/entities/session";
 import { LanguageSwitcher } from "@/features/language-switcher";
+import { ThemeToggle } from "@/features/theme-toggle";
+import { UserMenu } from "@/widgets/user-menu";
 import { Link } from "@/shared/i18n";
 import { Button } from "@/shared/ui/button";
 import {
@@ -14,9 +17,14 @@ import { Badge } from "@/shared/ui/badge";
 
 const foundationKeys = ["auth", "model", "forms", "fsd"] as const;
 
-export function HomeView() {
+type HomeViewProps = {
+  authState: ServerAuthState;
+};
+
+export function HomeView({ authState }: HomeViewProps) {
   const t = useTranslations("home");
   const tCommon = useTranslations("common");
+  const isAuthenticated = authState.status === "authenticated";
 
   return (
     <main className="min-h-screen bg-background">
@@ -27,12 +35,24 @@ export function HomeView() {
           </Link>
           <div className="flex flex-wrap items-center gap-2">
             <LanguageSwitcher />
-            <Button asChild variant="ghost">
-              <Link href="/sign-in">{t("nav.signIn")}</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/sign-up">{t("nav.createAccount")}</Link>
-            </Button>
+            <ThemeToggle />
+            {isAuthenticated ? (
+              <>
+                <Button asChild>
+                  <Link href="/dashboard">{t("actions.dashboard")}</Link>
+                </Button>
+                <UserMenu email={authState.user.email ?? "member@example.com"} />
+              </>
+            ) : (
+              <>
+                <Button asChild variant="ghost">
+                  <Link href="/sign-in">{t("nav.signIn")}</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/sign-up">{t("nav.createAccount")}</Link>
+                </Button>
+              </>
+            )}
           </div>
         </header>
         <div className="grid flex-1 items-center gap-8 py-12 lg:grid-cols-[1fr_420px]">
@@ -50,14 +70,16 @@ export function HomeView() {
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Button asChild size="lg">
-                <Link href="/dashboard">
-                  {t("actions.dashboard")}
+                <Link href={isAuthenticated ? "/dashboard" : "/sign-up"}>
+                  {isAuthenticated ? t("actions.dashboard") : t("actions.auth")}
                   <ArrowRight data-icon="inline-end" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link href="/sign-up">{t("actions.auth")}</Link>
-              </Button>
+              {!isAuthenticated ? (
+                <Button asChild size="lg" variant="outline">
+                  <Link href="/sign-in">{t("nav.signIn")}</Link>
+                </Button>
+              ) : null}
             </div>
           </div>
           <Card>

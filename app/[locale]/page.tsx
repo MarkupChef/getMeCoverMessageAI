@@ -1,5 +1,10 @@
+import { getServerAuthState } from "@/entities/session";
 import { HomeView } from "@/views/home";
 
-export default function Home() {
-  return <HomeView />;
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const authState = await getServerAuthState();
+
+  return <HomeView authState={authState} />;
 }

@@ -77,6 +77,14 @@ This feature makes user registration safe against email enumeration while keepin
 - Repeated auth callback: usage upsert ignores the duplicate `user_id`.
 - Repeated profile trigger execution: profile insert does nothing on existing `id`.
 
+## Related Features / Impact
+
+- Account deletion anti-abuse: re-registration can restore prior usage from `deleted_user_guards.email_hash`.
+- Usage limits: authenticated usage is initialized only after callback and must remain idempotent by `user_id`.
+- Supabase Auth providers: password and Google OAuth must both avoid pre-checking email existence.
+- Internationalization: signup success and generic technical failure copy live in `src/shared/i18n/messages/en.ts` and `src/shared/i18n/messages/uk.ts`.
+- Tests: signup behavior is covered by `tests/unit/auth-actions.test.ts`, `tests/unit/auth-forms.test.tsx`, and `tests/unit/account-guard.test.ts`.
+
 ## Change Checklist
 
 - If changing sign-up copy, keep it neutral and avoid confirming whether an account exists.
@@ -102,3 +110,10 @@ This feature makes user registration safe against email enumeration while keepin
   - Sign up again with the same email and confirm the same neutral success appears.
   - Complete the email/OAuth callback and verify one profile and one usage row exist for the user.
   - Repeat the callback or re-open the confirmation link and verify no duplicate profile or usage rows are created.
+
+## Last Updated Context
+
+- Date: 2026-05-18
+- Reason: Documented the current secure-registration implementation after adding email-enumeration-safe signup responses and idempotent profile/usage initialization.
+- Change type: Updated
+- Affected areas: `src/features/auth/api/actions.ts`, `src/entities/usage/api/usage.ts`, `/auth/callback`, Supabase profile trigger migration, signup i18n copy, auth and usage tests.

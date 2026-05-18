@@ -26,6 +26,9 @@ It also introduces the first usage-limit infrastructure for anonymous and authen
 - Decision: Usage initialization is recoverable.
   Reason: Auth registration can succeed before usage storage is ready; the form should not crash after Supabase already created the user.
 
+- Decision: Existing profile creation is idempotent.
+  Reason: Deletion and re-registration can produce retry paths where duplicate profile inserts must not break auth completion.
+
 ## Key Files
 
 - `app/api/account/route.ts` - verifies session, validates email confirmation, calls deletion service, clears session, and returns typed errors.
@@ -55,6 +58,8 @@ It also introduces the first usage-limit infrastructure for anonymous and authen
 9. If Auth deletion fails after guard insertion, the service tries to remove the new guard row before surfacing the error.
 10. On success, the route signs out the current session and the UI redirects to `/sign-in`.
 
+Registration and OAuth flows also call usage initialization after Supabase Auth succeeds. This step is best-effort for recoverable storage errors, so users do not see a runtime crash after Supabase has already sent a confirmation email.
+
 ## Data / State Model
 
 - `deleted_user_guards`
@@ -66,6 +71,7 @@ It also introduces the first usage-limit infrastructure for anonymous and authen
   - Stores `user_id` or `anonymous_id_hash`, optional `email_hash` and `ip_hash`, used count, and limit.
   - Authenticated limit is `5`; anonymous limit is `3`.
   - Existing profile backfill sets authenticated rows to `0 / 5`.
+  - `user_id` and `anonymous_id_hash` must be unique enough for usage initialization and anonymous usage creation.
 
 - Server env
   - `SUPABASE_SERVICE_ROLE_KEY` is required for admin deletion and private table access.
@@ -85,18 +91,29 @@ It also introduces the first usage-limit infrastructure for anonymous and authen
 
 - Missing account storage: profile renders usage as unavailable; deletion route returns a 503 with migration guidance.
 - Signup succeeds but usage initialization fails: recoverable storage errors are logged and do not crash the registration UI after the email was already sent.
+- `usage_limits` conflict-target mismatch: fix migration replaces partial unique indexes with unique constraints for `user_id` and `anonymous_id_hash`.
 - Re-registration with the same email: active `deleted_user_guards.email_hash` restores previous used count.
 - Repeated profile trigger execution: the trigger uses `on conflict (id) do nothing` to avoid duplicate profile failures.
 - Auth deletion failure after guard insertion: the feature attempts to delete the newly inserted guard row.
 
+## Related Features / Impact
+
+- Auth sign-up: `src/features/auth/api/actions.ts` initializes authenticated usage after Supabase creates a user.
+- OAuth callback: both default and localized callback routes initialize usage after session exchange.
+- Profile page: `/profile` and `/uk/profile` render account details, usage state, and the delete-account entry point.
+- Dashboard navigation: sidebar and user menu now link to `/profile`.
+- Supabase schema lifecycle: the feature depends on scaffold profile/billing cascade behavior and ordered migrations.
+- Tests: account guard, account route, profile view, and e2e protected-route smoke tests cover the feature.
+
 ## Change Checklist
 
-- If changing usage uniqueness, confirm Supabase/PostgREST `upsert` behavior still works or avoid `onConflict`.
+- If changing usage uniqueness, confirm Supabase/PostgREST conflict behavior and existing fix migrations remain valid.
 - If adding Stripe cleanup, keep financial records anonymized instead of blindly deleting accounting history.
 - If adding device tracking, document privacy implications and keep `device_hash` hashed.
 - If adding generation APIs, update `usage_limits.free_generations_used` through server-side code only.
 - If changing retention, update `DELETED_USER_GUARD_RETENTION_DAYS`, UI copy, and any cleanup job.
 - If changing auth routes, keep email/password sign-up and OAuth callback both initializing/restoring usage.
+- If editing migrations after they were applied manually in Supabase SQL Editor, add a follow-up migration instead of assuming the previous SQL can be replayed safely.
 
 ## Verification
 
@@ -122,3 +139,9 @@ It also introduces the first usage-limit infrastructure for anonymous and authen
   - Delete the account by typing the exact email.
   - Re-register with the same email and verify usage is restored from the guard row.
 
+## Last Updated Context
+
+- Date: 2026-05-18
+- Reason: Updated documentation to match the revised feature wiki template and current account deletion implementation.
+- Change type: Updated
+- Affected areas: `wiki/features/account-deletion-anti-abuse.md`, account deletion flow, usage initialization, Supabase migrations, profile route, auth sign-up/OAuth callbacks.

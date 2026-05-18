@@ -88,6 +88,15 @@ This feature exists to avoid duplicated route branches, keep auth redirects loca
 - Sign out redirects to `/sign-in` for English and `/uk/sign-in` for Ukrainian.
 - Internal English rewrites must not be mistaken for public `/en/...` requests, otherwise redirect loops can occur.
 
+## Related Features / Impact
+
+- Secure registration: sign-up, email confirmation, OAuth callback, and reset-password redirect URLs must use localized auth routes without exposing `/en` publicly.
+- Dashboard protection: unauthenticated redirects must resolve to `/sign-in` for English and `/uk/sign-in` for Ukrainian.
+- Account deletion and sign-out: post-action redirects must preserve the active locale and continue to work through the shared auth route handlers.
+- Supabase Auth: callback and OAuth routes are served from `app/[locale]` while English remains public as `/auth/...`.
+- Theme and app providers: root `<html>` is owned by `app/layout.tsx`, while locale-scoped providers stay in `app/[locale]/layout.tsx`.
+- Tests: canonical routing, language switching, auth route shape, and protected redirects are covered by `tests/e2e/app.spec.ts` and `tests/unit/i18n-routing.test.ts`.
+
 ## Change Checklist
 
 - When adding a locale:
@@ -138,3 +147,10 @@ This feature exists to avoid duplicated route branches, keep auth redirects loca
   - Open `/en/sign-in` and confirm redirect to `/sign-in`.
   - Switch `/dashboard` to Ukrainian and confirm `/uk/dashboard`.
   - Switch `/uk/dashboard` back to English and confirm `/dashboard`.
+
+## Last Updated Context
+
+- Date: 2026-05-18
+- Reason: Updated the i18n feature wiki to match the current `feature-wiki-doc` structure and document cross-feature impact.
+- Change type: Updated
+- Affected areas: `wiki/features/multiple-languages-i18n.md`, i18n routing, auth redirects, dashboard protection, Supabase auth callbacks, language switcher tests.

@@ -13,6 +13,8 @@ const uk = {
   },
   siteHeader: {
     results: "Результати",
+    pricing: "Ціни",
+    plan: "План",
     signIn: "Увійти",
   },
   userMenu: {
@@ -80,6 +82,40 @@ const uk = {
         model: "Модель даних у межах користувача",
         forms: "Форми з валідацією Zod",
         fsd: "Feature-Sliced Design",
+      },
+    },
+  },
+  pricing: {
+    publicTitle: "Ціни",
+    accountTitle: "План",
+    description:
+      "Почніть з безкоштовного плану й оновіть його, коли знадобиться більше лімітів.",
+    period: "на місяць",
+    stripePlaceholder: "Stripe Checkout буде підключено пізніше.",
+    plans: {
+      free: {
+        name: "Free",
+        price: "$0",
+        action: "Продовжити",
+        features: {
+          backgroundRemoval: "Обмежене видалення фону",
+          upscale: "Обмежений upscale",
+          export: "Безкоштовний експорт без водяного знака",
+        },
+      },
+      pro: {
+        name: "Pro",
+        price: "$10",
+        action: "Оновити",
+        features: {
+          credits: "600 AI-кредитів на місяць",
+          models: "Доступ до всіх AI-моделей",
+          backgroundRemoval: "Необмежене видалення фону",
+          upscale: "Необмежений upscale",
+          team: "Команда з 3 людей",
+          batchExports: "1,000 batch-експортів на місяць",
+          license: "Комерційна ліцензія",
+        },
       },
     },
   },

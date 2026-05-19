@@ -19,6 +19,19 @@ test("sign in page loads", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Welcome back" })).toBeVisible();
 });
 
+test("pricing page loads for unauthenticated users", async ({ page }) => {
+  await page.goto("/pricing");
+  await expect(page.getByRole("heading", { name: "Pricing" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Free" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Pro" })).toBeVisible();
+});
+
+test("prefixed pricing page loads with Ukrainian copy", async ({ page }) => {
+  await page.goto("/uk/pricing");
+  await expect(page.getByRole("heading", { name: "Ціни" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Продовжити" })).toBeVisible();
+});
+
 test("sign in empty submit shows validation without GET query params", async ({ page }) => {
   await page.goto("/sign-in");
   await page.getByRole("button", { name: "Sign in" }).click();
@@ -96,6 +109,16 @@ test("prefixed profile redirects unauthenticated users to prefixed sign in", asy
 test("settings redirects unauthenticated users", async ({ page }) => {
   await page.goto("/settings");
   await expect(page).toHaveURL(/\/sign-in$/);
+});
+
+test("plan redirects unauthenticated users", async ({ page }) => {
+  await page.goto("/plan");
+  await expect(page).toHaveURL(/\/sign-in$/);
+});
+
+test("prefixed plan redirects unauthenticated users to prefixed sign in", async ({ page }) => {
+  await page.goto("/uk/plan");
+  await expect(page).toHaveURL(/\/uk\/sign-in$/);
 });
 
 test("language switcher changes the active locale", async ({ page }) => {

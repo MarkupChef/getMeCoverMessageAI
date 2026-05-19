@@ -11,6 +11,8 @@ const en = {
   },
   siteHeader: {
     results: "Results",
+    pricing: "Pricing",
+    plan: "Plan",
     signIn: "Sign in",
   },
   userMenu: {
@@ -78,6 +80,40 @@ const en = {
         model: "User-scoped data model",
         forms: "Zod validated forms",
         fsd: "Feature-Sliced Design",
+      },
+    },
+  },
+  pricing: {
+    publicTitle: "Pricing",
+    accountTitle: "Plan",
+    description:
+      "Start with the free plan and upgrade when you need more usage.",
+    period: "per month",
+    stripePlaceholder: "Stripe checkout will be connected later.",
+    plans: {
+      free: {
+        name: "Free",
+        price: "$0",
+        action: "Continue",
+        features: {
+          backgroundRemoval: "Limited Background Removal",
+          upscale: "Limited Upscale",
+          export: "Free export without watermark",
+        },
+      },
+      pro: {
+        name: "Pro",
+        price: "$10",
+        action: "Upgrade",
+        features: {
+          credits: "600 AI Credits Monthly",
+          models: "Access all AI models",
+          backgroundRemoval: "Unlimited Background Removal",
+          upscale: "Unlimited Upscale",
+          team: "3 Person Team",
+          batchExports: "1,000 Batch Exports Monthly",
+          license: "Commercial license",
+        },
       },
     },
   },

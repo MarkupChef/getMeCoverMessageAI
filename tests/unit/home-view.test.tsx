@@ -17,6 +17,10 @@ describe("HomeView", () => {
     expect(signInLinks.every((link) => link.getAttribute("href") === "/sign-in")).toBe(
       true,
     );
+    expect(screen.getByRole("link", { name: "Pricing" })).toHaveAttribute(
+      "href",
+      "/pricing",
+    );
     expect(screen.getByRole("link", { name: "Start with auth" })).toHaveAttribute(
       "href",
       "/sign-up",
@@ -48,6 +52,10 @@ describe("HomeView", () => {
     expect(screen.getByRole("link", { name: "Results" })).toHaveAttribute(
       "href",
       "/results",
+    );
+    expect(screen.getByRole("link", { name: "Plan" })).toHaveAttribute(
+      "href",
+      "/plan",
     );
     expect(screen.getByRole("link", { name: "Open results" })).toHaveAttribute(
       "href",

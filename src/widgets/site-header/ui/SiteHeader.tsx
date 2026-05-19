@@ -27,10 +27,19 @@ export function SiteHeader({
         </Link>
         <nav className="flex flex-wrap items-center justify-end gap-2">
           {isAuthenticated ? (
+            <>
+              <Button asChild variant="ghost">
+                <Link href="/results">{tHeader("results")}</Link>
+              </Button>
+              <Button asChild variant="ghost">
+                <Link href="/plan">{tHeader("plan")}</Link>
+              </Button>
+            </>
+          ) : (
             <Button asChild variant="ghost">
-              <Link href="/results">{tHeader("results")}</Link>
+              <Link href="/pricing">{tHeader("pricing")}</Link>
             </Button>
-          ) : null}
+          )}
           <LanguageSwitcher />
           <ThemeToggle />
           {isAuthenticated ? (

@@ -17,6 +17,12 @@ const uk = {
     plan: "План",
     signIn: "Увійти",
   },
+  siteFooter: {
+    privacy: "Політика конфіденційності",
+    terms: "Умови користування",
+    contact: "Контакт",
+    email: "youemail@example.com",
+  },
   userMenu: {
     profile: "Профіль",
     settings: "Налаштування",
@@ -118,6 +124,14 @@ const uk = {
         },
       },
     },
+  },
+  privacy: {
+    title: "Політика конфіденційності",
+    body: "тут буде текст вашої Політики конфіденційності",
+  },
+  terms: {
+    title: "Умови користування",
+    body: "тут буде текст ваших Умов користування",
   },
   results: {
     list: {

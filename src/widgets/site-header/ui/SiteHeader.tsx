@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { LanguageSwitcher } from "@/features/language-switcher";
 import { ThemeToggle } from "@/features/theme-toggle";
 import { Link } from "@/shared/i18n";
 import { Button } from "@/shared/ui/button";
@@ -40,7 +39,6 @@ export function SiteHeader({
               <Link href="/pricing">{tHeader("pricing")}</Link>
             </Button>
           )}
-          <LanguageSwitcher />
           <ThemeToggle />
           {isAuthenticated ? (
             userMenu

@@ -15,6 +15,12 @@ const en = {
     plan: "Plan",
     signIn: "Sign in",
   },
+  siteFooter: {
+    privacy: "Privacy Policy",
+    terms: "Terms of Service",
+    contact: "Contact",
+    email: "youemail@example.com",
+  },
   userMenu: {
     profile: "Profile",
     settings: "Settings",
@@ -116,6 +122,14 @@ const en = {
         },
       },
     },
+  },
+  privacy: {
+    title: "Privacy Policy",
+    body: "your Privacy Policy text here",
+  },
+  terms: {
+    title: "Terms of Service",
+    body: "your Terms of Service text here",
   },
   results: {
     list: {

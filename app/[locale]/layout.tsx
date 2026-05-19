@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { AppProviders } from "@/app/providers/AppProviders";
+import { SiteFooter } from "@/widgets/site-footer";
 import { routing, type Locale } from "@/shared/i18n";
 
 type LocaleLayoutProps = {
@@ -48,7 +49,12 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale as Locale} messages={messages}>
-      <AppProviders>{children}</AppProviders>
+      <AppProviders>
+        <div className="flex min-h-screen flex-col bg-background">
+          <div className="flex flex-1 flex-col">{children}</div>
+          <SiteFooter />
+        </div>
+      </AppProviders>
     </NextIntlClientProvider>
   );
 }

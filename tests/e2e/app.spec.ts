@@ -24,12 +24,43 @@ test("pricing page loads for unauthenticated users", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Pricing" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Free" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Pro" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Privacy Policy" })).toBeVisible();
 });
 
 test("prefixed pricing page loads with Ukrainian copy", async ({ page }) => {
   await page.goto("/uk/pricing");
   await expect(page.getByRole("heading", { name: "Ціни" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Продовжити" })).toBeVisible();
+});
+
+test("privacy page loads", async ({ page }) => {
+  await page.goto("/privacy");
+  await expect(page.getByRole("link", { name: "SaaS Starter" })).toHaveAttribute(
+    "href",
+    "/",
+  );
+  await expect(page.getByRole("heading", { name: "Privacy Policy" })).toBeVisible();
+  await expect(page.getByText("your Privacy Policy text here")).toBeVisible();
+});
+
+test("terms page loads", async ({ page }) => {
+  await page.goto("/terms");
+  await expect(page.getByRole("link", { name: "SaaS Starter" })).toHaveAttribute(
+    "href",
+    "/",
+  );
+  await expect(page.getByRole("heading", { name: "Terms of Service" })).toBeVisible();
+  await expect(page.getByText("your Terms of Service text here")).toBeVisible();
+});
+
+test("prefixed legal pages load with Ukrainian copy", async ({ page }) => {
+  await page.goto("/uk/privacy");
+  await expect(
+    page.getByRole("heading", { name: "Політика конфіденційності" }),
+  ).toBeVisible();
+
+  await page.goto("/uk/terms");
+  await expect(page.getByRole("heading", { name: "Умови користування" })).toBeVisible();
 });
 
 test("sign in empty submit shows validation without GET query params", async ({ page }) => {

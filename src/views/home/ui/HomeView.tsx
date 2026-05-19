@@ -108,11 +108,6 @@ export function HomeView({ authState }: HomeViewProps) {
           </div>
         </section>
       </main>
-      <footer className="border-t">
-        <div className="mx-auto flex min-h-16 w-full max-w-6xl items-center px-4 text-sm text-muted-foreground sm:px-6">
-          {t("footer")}
-        </div>
-      </footer>
     </div>
   );
 }

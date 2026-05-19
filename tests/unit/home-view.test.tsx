@@ -35,6 +35,7 @@ describe("HomeView", () => {
       screen.queryByRole("link", { name: "Open results" }),
     ).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Change theme" })).toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "Language" })).not.toBeInTheDocument();
   });
 
   it("renders authenticated navigation without guest auth links", () => {

@@ -155,20 +155,18 @@ const uk = {
   },
   settings: {
     title: "Налаштування",
-    description: "Заготовки налаштувань акаунта та білінгу.",
-    account: {
-      title: "Акаунт",
-      description: "Налаштування профілю та особистого workspace.",
-      typeLabel: "Тип акаунта",
-      typeValue: "Індивідуальний",
-      note: "Оновлення профілю залишатимуться в межах поточного користувача.",
+    description: "Персоналізуйте вигляд і поведінку застосунку для свого акаунта.",
+    appearance: {
+      title: "Вигляд",
+      description: "Оберіть візуальний режим для всього застосунку.",
+      themeLabel: "Тема",
+      themeDescription: "Використовуйте світлу, темну або системну тему.",
     },
-    billing: {
-      title: "Білінг",
-      description: "Точка розширення Stripe, інтеграція ще не підключена.",
-      statusLabel: "Статус підписки",
-      statusValue: "Не налаштовано",
-      note: "Додайте Checkout, Customer Portal і webhooks після визначення цін.",
+    language: {
+      title: "Мова",
+      description: "Оберіть мову інтерфейсу для цього браузера.",
+      languageLabel: "Мова інтерфейсу",
+      languageDescription: "Перемикайтеся між підтримуваними мовами застосунку.",
     },
   },
   profile: {

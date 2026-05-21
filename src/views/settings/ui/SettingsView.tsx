@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
-import { Badge } from "@/shared/ui/badge";
+import { LanguageSwitcher } from "@/features/language-switcher";
+import { ThemeToggle } from "@/features/theme-toggle";
 import {
   Card,
   CardContent,
@@ -15,38 +16,44 @@ export function SettingsView() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-3xl font-semibold tracking-normal">{t("title")}</h1>
-        <p className="text-muted-foreground">
-          {t("description")}
-        </p>
+        <p className="text-muted-foreground">{t("description")}</p>
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>{t("account.title")}</CardTitle>
-            <CardDescription>{t("account.description")}</CardDescription>
+            <CardTitle className="text-base">{t("appearance.title")}</CardTitle>
+            <CardDescription>{t("appearance.description")}</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-3 text-sm">
-            <div className="flex items-center justify-between rounded-md border p-3">
-              <span>{t("account.typeLabel")}</span>
-              <Badge variant="secondary">{t("account.typeValue")}</Badge>
-            </div>
-            <div className="rounded-md border p-3 text-muted-foreground">
-              {t("account.note")}
+          <CardContent>
+            <div className="flex items-center justify-between gap-4 rounded-md border p-3">
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-medium">
+                  {t("appearance.themeLabel")}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {t("appearance.themeDescription")}
+                </span>
+              </div>
+              <ThemeToggle />
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>{t("billing.title")}</CardTitle>
-            <CardDescription>{t("billing.description")}</CardDescription>
+            <CardTitle className="text-base">{t("language.title")}</CardTitle>
+            <CardDescription>{t("language.description")}</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-3 text-sm">
-            <div className="flex items-center justify-between rounded-md border p-3">
-              <span>{t("billing.statusLabel")}</span>
-              <Badge variant="outline">{t("billing.statusValue")}</Badge>
-            </div>
-            <div className="rounded-md border p-3 text-muted-foreground">
-              {t("billing.note")}
+          <CardContent>
+            <div className="flex flex-col gap-3 rounded-md border p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-medium">
+                  {t("language.languageLabel")}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {t("language.languageDescription")}
+                </span>
+              </div>
+              <LanguageSwitcher />
             </div>
           </CardContent>
         </Card>

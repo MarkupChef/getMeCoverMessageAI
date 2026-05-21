@@ -153,20 +153,18 @@ const en = {
   },
   settings: {
     title: "Settings",
-    description: "Account and billing settings placeholders.",
-    account: {
-      title: "Account",
-      description: "Profile and personal workspace settings.",
-      typeLabel: "Account type",
-      typeValue: "Individual",
-      note: "Profile updates will stay scoped to the signed-in user.",
+    description: "Personalize how the app looks and behaves for your account.",
+    appearance: {
+      title: "Appearance",
+      description: "Choose the visual mode used across the app.",
+      themeLabel: "Theme",
+      themeDescription: "Use light, dark, or your system preference.",
     },
-    billing: {
-      title: "Billing",
-      description: "Stripe extension point, not integrated yet.",
-      statusLabel: "Subscription status",
-      statusValue: "Not configured",
-      note: "Add Checkout, Customer Portal, and webhooks when pricing is defined.",
+    language: {
+      title: "Language",
+      description: "Choose the interface language for this browser.",
+      languageLabel: "Display language",
+      languageDescription: "Switch between supported app languages.",
     },
   },
   profile: {

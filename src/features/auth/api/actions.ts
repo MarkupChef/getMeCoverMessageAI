@@ -7,14 +7,17 @@ import { createSupabaseServerClient } from "@/shared/api/supabase/server";
 import { getLocalizedPath as buildLocalizedPath, type Locale } from "@/shared/i18n";
 import {
   createForgotPasswordSchema,
+  createChangePasswordSchema,
   createResetPasswordSchema,
   createSignInSchema,
   createSignUpSchema,
+  type ChangePasswordInput,
   type ForgotPasswordInput,
   type ResetPasswordInput,
   type SignInInput,
   type SignUpInput,
 } from "../model/schema";
+import { canChangePasswordForUser } from "../model/password-provider";
 
 export type AuthActionState = {
   ok: boolean;
@@ -224,6 +227,58 @@ export async function resetPasswordAction(
   }
 
   redirect(await getCurrentLocalizedPath("/results"));
+}
+
+export async function changePasswordAction(
+  input: ChangePasswordInput,
+): Promise<AuthActionState> {
+  const { validation, messages } = await getAuthMessages();
+  const parsed = createChangePasswordSchema(validation).safeParse(input);
+
+  if (!parsed.success) {
+    return { ok: false, message: messages("checkNewPassword") };
+  }
+
+  if (!hasPublicEnv()) {
+    return { ok: false, message: messages("authNotConfigured") };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user?.email) {
+    return { ok: false, message: messages("signInRequired") };
+  }
+
+  if (!canChangePasswordForUser(user)) {
+    return { ok: false, message: messages("passwordUnavailable") };
+  }
+
+  const {
+    data: { user: verifiedUser },
+    error: verifyError,
+  } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: parsed.data.currentPassword,
+  });
+
+  if (verifyError || verifiedUser?.id !== user.id) {
+    return { ok: false, message: messages("currentPasswordInvalid") };
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: parsed.data.password,
+    current_password: parsed.data.currentPassword,
+  });
+
+  if (error) {
+    return { ok: false, message: messages("unableUpdatePassword") };
+  }
+
+  return { ok: true, message: messages("passwordUpdated") };
 }
 
 export async function signOutAction() {

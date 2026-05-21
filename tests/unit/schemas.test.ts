@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { subscriptionStatusSchema } from "@/entities/billing";
-import { signInSchema, signUpSchema } from "@/features/auth";
+import { changePasswordSchema, signInSchema, signUpSchema } from "@/features/auth";
 
 describe("validation schemas", () => {
   it("rejects invalid sign in credentials", () => {
@@ -27,6 +27,26 @@ describe("validation schemas", () => {
         email: "jane@example.com",
         password: "password123",
         confirmPassword: "password456",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("accepts valid password change input", () => {
+    expect(
+      changePasswordSchema.safeParse({
+        currentPassword: "password123",
+        password: "newpassword123",
+        confirmPassword: "newpassword123",
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects invalid password change input", () => {
+    expect(
+      changePasswordSchema.safeParse({
+        currentPassword: "",
+        password: "short",
+        confirmPassword: "different",
       }).success,
     ).toBe(false);
   });

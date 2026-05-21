@@ -36,4 +36,16 @@ describe("UserMenu", () => {
     expect(i18nRouter.replace).toHaveBeenCalledWith("/sign-in");
     expect(i18nRouter.refresh).toHaveBeenCalled();
   });
+
+  it("links to billing from the account menu", async () => {
+    const user = userEvent.setup();
+    renderWithIntl(<UserMenu email="founder@example.com" />);
+
+    await user.click(screen.getByRole("button", { name: /founder@example\.com/ }));
+
+    expect(screen.getByRole("menuitem", { name: "Billing" })).toHaveAttribute(
+      "href",
+      "/billing",
+    );
+  });
 });

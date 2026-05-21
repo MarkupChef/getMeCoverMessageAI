@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { LogOut, Settings, User } from "lucide-react";
+import { CreditCard, LogOut, Settings, User } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import {
   getLocalizedPath,
@@ -57,6 +57,12 @@ export function UserMenu({ email }: { email: string }) {
             <Link href="/profile">
               <User data-icon="inline-start" />
               {t("profile")}
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link href="/billing">
+              <CreditCard data-icon="inline-start" />
+              {t("billing")}
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>

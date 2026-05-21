@@ -23,6 +23,7 @@ const en = {
   },
   userMenu: {
     profile: "Profile",
+    billing: "Billing",
     settings: "Settings",
     signOut: "Sign out",
   },
@@ -165,6 +166,17 @@ const en = {
       description: "Choose the interface language for this browser.",
       languageLabel: "Display language",
       languageDescription: "Switch between supported app languages.",
+    },
+  },
+  billing: {
+    title: "Billing",
+    description:
+      "Manage payment details and invoices after billing is connected.",
+    empty: {
+      title: "Billing is not configured yet",
+      description:
+        "Payments, invoices, and customer portal access will appear here after the payment integration is added.",
+      action: "View plan",
     },
   },
   profile: {

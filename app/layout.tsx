@@ -1,7 +1,11 @@
 import { cookies, headers } from "next/headers";
+import Script from "next/script";
 import { routing } from "@/shared/i18n";
 import { isTheme, THEME_STORAGE_KEY } from "@/shared/lib/theme-config";
-import { getThemeInitScript } from "@/shared/lib/theme-init-script";
+import {
+  getThemeInitScript,
+  THEME_INIT_SCRIPT_ID,
+} from "@/shared/lib/theme-init-script";
 import "./globals.css";
 
 export default async function RootLayout({
@@ -31,8 +35,9 @@ export default async function RootLayout({
       }
     >
       <body className="min-h-full bg-background text-foreground">
-        <script
-          suppressHydrationWarning
+        <Script
+          id={THEME_INIT_SCRIPT_ID}
+          strategy="afterInteractive"
           dangerouslySetInnerHTML={{ __html: getThemeInitScript() }}
         />
         {children}

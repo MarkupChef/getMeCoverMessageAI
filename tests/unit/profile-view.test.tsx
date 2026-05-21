@@ -15,6 +15,7 @@ describe("profile view", () => {
   it("renders account deletion controls", () => {
     renderWithIntl(
       <ProfileView
+        canChangePassword
         email="jane@example.com"
         fullName="Jane Doe"
         freeGenerationsUsed={2}
@@ -27,6 +28,9 @@ describe("profile view", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("jane@example.com")).toBeInTheDocument();
     expect(
+      screen.getByRole("button", { name: "Change password" }),
+    ).toBeInTheDocument();
+    expect(
       screen.getByRole("button", { name: "Delete account" }),
     ).toBeInTheDocument();
   });
@@ -36,6 +40,7 @@ describe("profile view", () => {
     const fetchMock = vi.spyOn(window, "fetch");
     renderWithIntl(
       <ProfileView
+        canChangePassword
         email="jane@example.com"
         fullName="Jane Doe"
         freeGenerationsUsed={2}
@@ -75,6 +80,7 @@ describe("profile view", () => {
     );
     renderWithIntl(
       <ProfileView
+        canChangePassword
         email="jane@example.com"
         fullName="Jane Doe"
         freeGenerationsUsed={2}
@@ -94,5 +100,26 @@ describe("profile view", () => {
       ).toBeDisabled();
     });
     fetchMock.mockRestore();
+  });
+
+  it("renders a password notice for OAuth-only accounts", () => {
+    renderWithIntl(
+      <ProfileView
+        canChangePassword={false}
+        email="jane@example.com"
+        fullName="Jane Doe"
+        freeGenerationsUsed={2}
+        freeGenerationsLimit={5}
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        "Password changes are available only for accounts created with email and password.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Change password" }),
+    ).not.toBeInTheDocument();
   });
 });

@@ -1,4 +1,5 @@
 import { DeleteAccountDialog } from "@/features/delete-account";
+import { ChangePasswordDialog } from "@/features/auth";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/shared/ui/badge";
 import {
@@ -10,6 +11,7 @@ import {
 } from "@/shared/ui/card";
 
 type ProfileViewProps = {
+  canChangePassword: boolean;
   email: string;
   fullName: string | null;
   freeGenerationsUsed: number | null;
@@ -17,6 +19,7 @@ type ProfileViewProps = {
 };
 
 export function ProfileView({
+  canChangePassword,
   email,
   fullName,
   freeGenerationsUsed,
@@ -70,19 +73,34 @@ export function ProfileView({
             </div>
           </CardContent>
         </Card>
-      </div>
-      <Card className="border-destructive/40">
-        <CardHeader>
-          <CardTitle>{t("danger.title")}</CardTitle>
-          <CardDescription>{t("danger.description")}</CardDescription>
-        </CardHeader>
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("security.title")}</CardTitle>
+            <CardDescription>{t("security.description")}</CardDescription>
+          </CardHeader>
         <CardContent className="flex flex-col items-start gap-4">
-          <p className="max-w-2xl text-sm text-muted-foreground">
-            {t("danger.retentionNotice")}
-          </p>
-          <DeleteAccountDialog email={email} />
-        </CardContent>
-      </Card>
+          {canChangePassword ? (
+            <ChangePasswordDialog />
+          ) : (
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              {t("security.passwordUnavailable")}
+                </p>
+            )}
+          </CardContent>
+        </Card>
+        <Card className="border-destructive/40">
+          <CardHeader>
+            <CardTitle>{t("danger.title")}</CardTitle>
+            <CardDescription>{t("danger.description")}</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-start gap-4">
+            <p className="max-w-2xl text-sm text-muted-foreground">
+              {t("danger.retentionNotice")}
+            </p>
+            <DeleteAccountDialog email={email} />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

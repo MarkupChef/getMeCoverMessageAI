@@ -3,6 +3,7 @@ import {
   AUTHENTICATED_FREE_GENERATIONS_LIMIT,
   getAuthenticatedUsageCountIfAvailable,
 } from "@/entities/usage";
+import { canChangePasswordForUser } from "@/features/auth";
 import { ProfileView } from "@/views/profile";
 import { createSupabaseAdminClient } from "@/shared/api/supabase/admin";
 import { createSupabaseServerClient } from "@/shared/api/supabase/server";
@@ -50,6 +51,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   return (
     <ProfileView
+      canChangePassword={canChangePasswordForUser(user)}
       email={user.email}
       fullName={profile?.full_name ?? null}
       freeGenerationsUsed={freeGenerationsUsed}

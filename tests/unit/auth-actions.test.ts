@@ -1,9 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { signUpAction } from "@/features/auth/api/actions";
+import { changePasswordAction, signUpAction } from "@/features/auth/api/actions";
 import { createSupabaseServerClient } from "@/shared/api/supabase/server";
 import { initializeAuthenticatedUsageIfConfigured } from "@/entities/usage";
 
 const signUp = vi.fn();
+const getUser = vi.fn();
+const signInWithPassword = vi.fn();
+const updateUser = vi.fn();
 
 vi.mock("@/shared/api/supabase/server", () => ({
   createSupabaseServerClient: vi.fn(),
@@ -34,6 +37,13 @@ vi.mock("next-intl/server", () => ({
         confirmAccount:
           "Check your inbox. If an account can be created, we sent an email to continue.",
         unableCreateAccount: "Unable to create account. Try again later.",
+        checkNewPassword: "Check the new password.",
+        currentPasswordInvalid: "Current password is invalid.",
+        passwordUnavailable:
+          "Password changes are available only for accounts created with email and password.",
+        passwordUpdated: "Password updated.",
+        signInRequired: "Sign in again to change your password.",
+        unableUpdatePassword: "Unable to update password.",
       },
     };
 
@@ -51,8 +61,11 @@ describe("signUpAction", () => {
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "publishable-key";
     process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";
     signUp.mockReset();
+    getUser.mockReset();
+    signInWithPassword.mockReset();
+    updateUser.mockReset();
     vi.mocked(createSupabaseServerClient).mockResolvedValue({
-      auth: { signUp },
+      auth: { getUser, signInWithPassword, signUp, updateUser },
     } as never);
     vi.mocked(initializeAuthenticatedUsageIfConfigured).mockReset();
   });
@@ -162,5 +175,149 @@ describe("signUpAction", () => {
       message: "Check the submitted account details.",
     });
     expect(signUp).not.toHaveBeenCalled();
+  });
+});
+
+describe("changePasswordAction", () => {
+  beforeEach(() => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://example.supabase.co";
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "publishable-key";
+    process.env.NEXT_PUBLIC_APP_URL = "http://localhost:3000";
+    getUser.mockReset();
+    signInWithPassword.mockReset();
+    signUp.mockReset();
+    updateUser.mockReset();
+    vi.mocked(createSupabaseServerClient).mockResolvedValue({
+      auth: { getUser, signInWithPassword, signUp, updateUser },
+    } as never);
+  });
+
+  it("does not call Supabase when the input is invalid", async () => {
+    await expect(
+      changePasswordAction({
+        currentPassword: "",
+        password: "short",
+        confirmPassword: "different",
+      }),
+    ).resolves.toEqual({
+      ok: false,
+      message: "Check the new password.",
+    });
+    expect(getUser).not.toHaveBeenCalled();
+    expect(updateUser).not.toHaveBeenCalled();
+  });
+
+  it("rejects unauthenticated users", async () => {
+    getUser.mockResolvedValue({
+      data: { user: null },
+      error: null,
+    });
+
+    await expect(
+      changePasswordAction({
+        currentPassword: "password123",
+        password: "newpassword123",
+        confirmPassword: "newpassword123",
+      }),
+    ).resolves.toEqual({
+      ok: false,
+      message: "Sign in again to change your password.",
+    });
+    expect(updateUser).not.toHaveBeenCalled();
+  });
+
+  it("rejects OAuth-only users", async () => {
+    getUser.mockResolvedValue({
+      data: {
+        user: {
+          id: "user-id",
+          email: "jane@example.com",
+          identities: [{ provider: "google" }],
+          app_metadata: { provider: "google", providers: ["google"] },
+        },
+      },
+      error: null,
+    });
+
+    await expect(
+      changePasswordAction({
+        currentPassword: "password123",
+        password: "newpassword123",
+        confirmPassword: "newpassword123",
+      }),
+    ).resolves.toEqual({
+      ok: false,
+      message:
+        "Password changes are available only for accounts created with email and password.",
+    });
+    expect(updateUser).not.toHaveBeenCalled();
+  });
+
+  it("rejects invalid current passwords before updating", async () => {
+    getUser.mockResolvedValue({
+      data: {
+        user: {
+          id: "user-id",
+          email: "jane@example.com",
+          identities: [{ provider: "email" }],
+          app_metadata: { provider: "email", providers: ["email"] },
+        },
+      },
+      error: null,
+    });
+    signInWithPassword.mockResolvedValue({
+      data: { user: null },
+      error: { message: "Invalid login credentials" },
+    });
+
+    await expect(
+      changePasswordAction({
+        currentPassword: "wrongpassword",
+        password: "newpassword123",
+        confirmPassword: "newpassword123",
+      }),
+    ).resolves.toEqual({
+      ok: false,
+      message: "Current password is invalid.",
+    });
+    expect(updateUser).not.toHaveBeenCalled();
+  });
+
+  it("updates email identity passwords with the current password", async () => {
+    getUser.mockResolvedValue({
+      data: {
+        user: {
+          id: "user-id",
+          email: "jane@example.com",
+          identities: [{ provider: "email" }],
+          app_metadata: { provider: "email", providers: ["email"] },
+        },
+      },
+      error: null,
+    });
+    signInWithPassword.mockResolvedValue({
+      data: { user: { id: "user-id" } },
+      error: null,
+    });
+    updateUser.mockResolvedValue({ data: { user: {} }, error: null });
+
+    await expect(
+      changePasswordAction({
+        currentPassword: "password123",
+        password: "newpassword123",
+        confirmPassword: "newpassword123",
+      }),
+    ).resolves.toEqual({
+      ok: true,
+      message: "Password updated.",
+    });
+    expect(signInWithPassword).toHaveBeenCalledWith({
+      email: "jane@example.com",
+      password: "password123",
+    });
+    expect(updateUser).toHaveBeenCalledWith({
+      password: "newpassword123",
+      current_password: "password123",
+    });
   });
 });

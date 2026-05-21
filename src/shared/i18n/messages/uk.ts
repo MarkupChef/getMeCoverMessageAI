@@ -188,6 +188,12 @@ const uk = {
       value: "{used} / {limit}",
       unavailable: "Не налаштовано",
     },
+    security: {
+      title: "Пароль",
+      description: "Змініть пароль для входу через email.",
+      passwordUnavailable:
+        "Зміна пароля доступна лише для акаунтів, створених через email і пароль.",
+    },
     danger: {
       title: "Видалити акаунт",
       description: "Назавжди видалити акаунт і персональні дані профілю.",
@@ -244,6 +250,7 @@ const uk = {
       fullName: "Повне ім'я",
       email: "Email",
       password: "Пароль",
+      currentPassword: "Поточний пароль",
       confirmPassword: "Підтвердьте пароль",
       newPassword: "Новий пароль",
       confirmNewPassword: "Підтвердьте новий пароль",
@@ -254,7 +261,10 @@ const uk = {
       forgotPassword: "Забули пароль?",
       continueWithGoogle: "Продовжити з Google",
       sendResetLink: "Надіслати посилання",
+      changePassword: "Змінити пароль",
       updatePassword: "Оновити пароль",
+      close: "Закрити",
+      togglePasswordVisibility: "Показати або приховати пароль",
     },
     validation: {
       emailRequired: "Email обов'язковий.",
@@ -282,6 +292,18 @@ const uk = {
       validEmail: "Введіть коректну email-адресу.",
       resetInstructions: "Інструкції для скидання пароля надіслано.",
       checkNewPassword: "Перевірте новий пароль.",
+      signInRequired: "Увійдіть знову, щоб змінити пароль.",
+      passwordUnavailable:
+        "Зміна пароля доступна лише для акаунтів, створених через email і пароль.",
+      passwordUpdated: "Пароль оновлено.",
+      currentPasswordInvalid: "Поточний пароль неправильний.",
+    },
+    passwordDialog: {
+      title: "Змінити пароль",
+      description: "Введіть поточний пароль і оберіть новий.",
+      successTitle: "Пароль оновлено",
+      successDescription:
+        "Ваш пароль змінено. Використовуйте новий пароль під час наступного входу.",
     },
   },
 } as const satisfies Messages;

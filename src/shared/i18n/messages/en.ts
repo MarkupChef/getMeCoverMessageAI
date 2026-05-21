@@ -186,6 +186,12 @@ const en = {
       value: "{used} / {limit}",
       unavailable: "Not configured",
     },
+    security: {
+      title: "Password",
+      description: "Change the password used to sign in with email.",
+      passwordUnavailable:
+        "Password changes are available only for accounts created with email and password.",
+    },
     danger: {
       title: "Delete account",
       description:
@@ -243,6 +249,7 @@ const en = {
       fullName: "Full name",
       email: "Email",
       password: "Password",
+      currentPassword: "Current password",
       confirmPassword: "Confirm password",
       newPassword: "New password",
       confirmNewPassword: "Confirm new password",
@@ -253,7 +260,10 @@ const en = {
       forgotPassword: "Forgot password?",
       continueWithGoogle: "Continue with Google",
       sendResetLink: "Send reset link",
+      changePassword: "Change password",
       updatePassword: "Update password",
+      close: "Close",
+      togglePasswordVisibility: "Show or hide password",
     },
     validation: {
       emailRequired: "Email is required.",
@@ -281,6 +291,18 @@ const en = {
       validEmail: "Enter a valid email address.",
       resetInstructions: "Password reset instructions were sent.",
       checkNewPassword: "Check the new password.",
+      signInRequired: "Sign in again to change your password.",
+      passwordUnavailable:
+        "Password changes are available only for accounts created with email and password.",
+      passwordUpdated: "Password updated.",
+      currentPasswordInvalid: "Current password is invalid.",
+    },
+    passwordDialog: {
+      title: "Change password",
+      description: "Enter your current password and choose a new one.",
+      successTitle: "Password updated",
+      successDescription:
+        "Your password has been changed. Use the new password the next time you sign in.",
     },
   },
 } as const;

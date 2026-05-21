@@ -95,6 +95,28 @@ export function createResetPasswordSchema(messages: AuthValidationMessages) {
     });
 }
 
+export function createChangePasswordSchema(messages: AuthValidationMessages) {
+  return z
+    .object({
+      currentPassword: z
+        .string()
+        .min(1, messages.passwordRequired)
+        .min(8, messages.passwordMin),
+      password: z
+        .string()
+        .min(1, messages.passwordRequired)
+        .min(8, messages.passwordMin),
+      confirmPassword: z
+        .string()
+        .min(1, messages.confirmPasswordRequired)
+        .min(8, messages.passwordMin),
+    })
+    .refine((value) => value.password === value.confirmPassword, {
+      path: ["confirmPassword"],
+      message: messages.passwordsMismatch,
+    });
+}
+
 export const signInSchema = createSignInSchema(defaultAuthValidationMessages);
 export const signUpSchema = createSignUpSchema(defaultAuthValidationMessages);
 export const forgotPasswordSchema = createForgotPasswordSchema(
@@ -103,8 +125,12 @@ export const forgotPasswordSchema = createForgotPasswordSchema(
 export const resetPasswordSchema = createResetPasswordSchema(
   defaultAuthValidationMessages,
 );
+export const changePasswordSchema = createChangePasswordSchema(
+  defaultAuthValidationMessages,
+);
 
 export type SignInInput = z.infer<typeof signInSchema>;
 export type SignUpInput = z.infer<typeof signUpSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;

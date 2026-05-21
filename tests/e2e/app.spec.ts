@@ -142,6 +142,16 @@ test("settings redirects unauthenticated users", async ({ page }) => {
   await expect(page).toHaveURL(/\/sign-in$/);
 });
 
+test("billing redirects unauthenticated users", async ({ page }) => {
+  await page.goto("/billing");
+  await expect(page).toHaveURL(/\/sign-in$/);
+});
+
+test("prefixed billing redirects unauthenticated users to prefixed sign in", async ({ page }) => {
+  await page.goto("/uk/billing");
+  await expect(page).toHaveURL(/\/uk\/sign-in$/);
+});
+
 test("plan redirects unauthenticated users", async ({ page }) => {
   await page.goto("/plan");
   await expect(page).toHaveURL(/\/sign-in$/);

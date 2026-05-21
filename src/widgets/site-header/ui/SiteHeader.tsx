@@ -3,6 +3,7 @@ import { useTranslations } from "next-intl";
 import { ThemeToggle } from "@/features/theme-toggle";
 import { Link } from "@/shared/i18n";
 import { Button } from "@/shared/ui/button";
+import { MobileNavigationMenu } from "./MobileNavigationMenu";
 
 type SiteHeaderProps = {
   isAuthenticated: boolean;
@@ -17,28 +18,27 @@ export function SiteHeader({
 }: SiteHeaderProps) {
   const tCommon = useTranslations("common");
   const tHeader = useTranslations("siteHeader");
+  const navigationItems = isAuthenticated
+    ? [
+        { href: "/results", label: tHeader("results") },
+        { href: "/plan", label: tHeader("plan") },
+      ]
+    : [{ href: "/pricing", label: tHeader("pricing") }];
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-      <div className="mx-auto flex min-h-16 w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex min-h-16 w-full max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <Link className="text-base font-semibold" href="/">
           {tCommon("brand")}
         </Link>
-        <nav className="flex flex-wrap items-center justify-end gap-2">
-          {isAuthenticated ? (
-            <>
-              <Button asChild variant="ghost">
-                <Link href="/results">{tHeader("results")}</Link>
+        <div className="flex items-center justify-end gap-2">
+          <nav className="hidden items-center justify-end gap-2 md:flex">
+            {navigationItems.map((item) => (
+              <Button asChild key={item.href} variant="ghost">
+                <Link href={item.href}>{item.label}</Link>
               </Button>
-              <Button asChild variant="ghost">
-                <Link href="/plan">{tHeader("plan")}</Link>
-              </Button>
-            </>
-          ) : (
-            <Button asChild variant="ghost">
-              <Link href="/pricing">{tHeader("pricing")}</Link>
-            </Button>
-          )}
+            ))}
+          </nav>
           <ThemeToggle />
           {isAuthenticated ? (
             userMenu
@@ -47,7 +47,8 @@ export function SiteHeader({
               <Link href="/sign-in">{tHeader("signIn")}</Link>
             </Button>
           ) : null}
-        </nav>
+          <MobileNavigationMenu items={navigationItems} />
+        </div>
       </div>
     </header>
   );

@@ -2,11 +2,12 @@ import type { Messages } from "./en";
 
 const uk = {
   metadata: {
-    title: "SaaS Starter",
-    description: "Масштабований SaaS-шаблон на Next.js і Supabase.",
+    title: "Project starter",
+    description:
+      "Стартер solo-user проєкту на Next.js і Supabase.",
   },
   common: {
-    brand: "SaaS Starter",
+    brand: "Project starter",
     language: "Мова",
     english: "English",
     ukrainian: "Українська",
@@ -42,53 +43,123 @@ const uk = {
       createAccount: "Створити акаунт",
     },
     badge: "Next.js 16 + Supabase",
-    title: "Тут буде ваш AI-генератор.",
+    title: "Твоя AI-фіча може бути тут",
     hero: {
       description:
-        "Починайте з продуктового інтерфейсу. Маркетингові та SEO-блоки залишаються нижче робочої області.",
+        "Використовуйте перший екран як місце для головного AI-flow вашого продукту.",
     },
     description:
-      "Автентифікація, підписки, валідація, макет і межі бази даних уже налаштовані, щоб продуктові функції можна було додавати без перебудови застосунку.",
+      "Цей стартер дає solo-user MVP базові частини веб-застосунку: auth, захищені маршрути, керування акаунтом, налаштування, валідацію, межі бази даних і точки розширення для майбутніх продуктових flow.",
     actions: {
       results: "Відкрити результати",
       auth: "Почати з автентифікації",
     },
     generator: {
-      title: "Тут буде генератор",
+      title: "Робоча область фічі",
       description:
-        "Ця заглушка резервує робочу область першого екрана для майбутнього AI-flow.",
+        "Замініть цю заглушку основним flow вашої AI-фічі, інструмента або веб-застосунку.",
     },
     about: {
-      badge: "Про продукт",
-      title: "Масштабована SaaS-основа, де рутинні частини вже підключені.",
+      badge: "Про стартер",
+      title: "Практичний project starter для solo-user MVP веб-застосунків.",
     },
     howItWorks: {
       title: "Як це працює",
-      description: "Фінальний продуктовий flow залишиться простим і прямим.",
+      description:
+        "Налаштуйте environment, підключіть Supabase і починайте замінювати заглушки продуктовою логікою.",
       steps: {
-        open: {
-          title: "Відкрийте генератор",
-          description: "Користувач одразу потрапляє в продуктовий інтерфейс.",
+        publicEnv: {
+          title: "Додайте публічні змінні",
+          description:
+            "Налаштуйте публічні змінні для вашого Supabase-проєкту та локальної або production-адреси.",
         },
-        generate: {
-          title: "Згенеруйте preview",
-          description: "Введіть дані й перегляньте AI-результат до збереження.",
+        serverEnv: {
+          title: "Додайте server-only секрети",
+          description:
+            "Задайте server-only секрети для видалення акаунта, admin-cleanup і anti-abuse storage.",
         },
-        save: {
-          title: "Збережіть після входу",
-          description: "Збережені результати будуть у захищеному розділі Results.",
+        supabase: {
+          title: "Застосуйте базу Supabase",
+          description:
+            "Запустіть міграції, щоб profiles, billing placeholders, usage tracking, triggers і user-scoped RLS policies існували до додавання продуктових даних.",
         },
       },
     },
-    footer: "Побудовано як shell для solo-user AI SaaS.",
+    footer: "Побудовано як solo-user project starter.",
     checklist: {
       title: "Чекліст шаблону",
-      description: "Базові SaaS-можливості готові для продуктових slices.",
+      description:
+        "Базові можливості застосунку готові для ваших продуктових slices.",
       items: {
-        auth: "Supabase SSR auth",
-        model: "Модель даних у межах користувача",
-        forms: "Форми з валідацією Zod",
-        fsd: "Feature-Sliced Design",
+        registration: "Реєстрація через email і пароль",
+        signIn: "Вхід через email/password і вихід",
+        google: "Вхід через Google OAuth",
+        passwordRecovery: "Forgot і reset password flows",
+        passwordChange: "Зміна пароля для email-акаунтів",
+        accountDeletion: "Видалення акаунта з anti-abuse guard",
+        protectedShell: "Захищений app layout",
+        profile: "Профіль і дані акаунта",
+        theme: "Світла, темна і системна тема",
+        language: "Перемикання англійської та української мов",
+        supabase: "Supabase Auth, Postgres і user-scoped RLS",
+        forms: "Валідація через Zod і React Hook Form",
+        i18n: "Локалізовані маршрути й messages через next-intl",
+        extensions: "Заглушки billing, plan і results screen",
+      },
+    },
+    stack: {
+      title: "Стек",
+      description:
+        "Стартер використовує сучасний typed Next.js stack з локальними UI primitives і тестовою базою.",
+      items: {
+        next: {
+          title: "Next.js 16 App Router",
+          description: "File-system routing, server components, route handlers і proxy support.",
+        },
+        react: {
+          title: "React 19",
+          description: "Поточний React runtime для server і client components.",
+        },
+        typescript: {
+          title: "TypeScript strict mode",
+          description: "Типізований application code, schemas і Supabase database shapes.",
+        },
+        tailwind: {
+          title: "TailwindCSS 4",
+          description: "Token-based styling через app stylesheet.",
+        },
+        ui: {
+          title: "Local shadcn-style UI",
+          description: "Reusable components у src/shared/ui.",
+        },
+        supabase: {
+          title: "Supabase SSR/Auth/Postgres",
+          description: "Browser, server, proxy і admin helpers навколо Supabase.",
+        },
+        zod: {
+          title: "Zod",
+          description: "Runtime schemas з inferred TypeScript types.",
+        },
+        forms: {
+          title: "React Hook Form",
+          description: "Валідовані форми з @hookform/resolvers/zod.",
+        },
+        query: {
+          title: "TanStack Query",
+          description: "Client-side async state для майбутніх продуктових фіч.",
+        },
+        theme: {
+          title: "next-themes",
+          description: "Перемикання теми з persisted light, dark і system modes.",
+        },
+        i18n: {
+          title: "next-intl",
+          description: "Localized routes, navigation helpers і message dictionaries.",
+        },
+        testing: {
+          title: "Vitest і Playwright",
+          description: "Інструменти для unit, component і browser smoke tests.",
+        },
       },
     },
   },
@@ -119,7 +190,7 @@ const uk = {
           models: "Доступ до всіх AI-моделей",
           backgroundRemoval: "Необмежене видалення фону",
           upscale: "Необмежений upscale",
-          team: "Команда з 3 людей",
+          team: "Вищі ліміти workspace",
           batchExports: "1,000 batch-експортів на місяць",
           license: "Комерційна ліцензія",
         },
@@ -239,7 +310,8 @@ const uk = {
       },
       signUp: {
         title: "Створіть акаунт",
-        description: "Почніть з особистого профілю. Команди створюються всередині застосунку.",
+        description:
+          "Почніть з особистого профілю. Product-specific фічі можна додати після базового налаштування.",
         footerText: "Уже маєте акаунт?",
         footerLabel: "Увійти",
       },

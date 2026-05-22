@@ -8,8 +8,47 @@ import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Badge } from "@/shared/ui/badge";
 
-const foundationKeys = ["auth", "model", "forms", "fsd"] as const;
-const stepKeys = ["open", "generate", "save"] as const;
+const foundationKeys = [
+  "registration",
+  "signIn",
+  "google",
+  "passwordRecovery",
+  "passwordChange",
+  "accountDeletion",
+  "protectedShell",
+  "profile",
+  "theme",
+  "language",
+  "supabase",
+  "forms",
+  "i18n",
+  "extensions",
+] as const;
+const stepKeys = ["publicEnv", "serverEnv", "supabase"] as const;
+type StepKey = (typeof stepKeys)[number];
+
+const stepEnvVars: Partial<Record<StepKey, readonly string[]>> = {
+  publicEnv: [
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    "NEXT_PUBLIC_APP_URL",
+  ],
+  serverEnv: ["SUPABASE_SERVICE_ROLE_KEY", "ACCOUNT_GUARD_HMAC_SECRET"],
+};
+const stackKeys = [
+  "next",
+  "react",
+  "typescript",
+  "tailwind",
+  "ui",
+  "supabase",
+  "zod",
+  "forms",
+  "query",
+  "theme",
+  "i18n",
+  "testing",
+] as const;
 
 type HomeViewProps = {
   authState: ServerAuthState;
@@ -77,7 +116,10 @@ export function HomeView({ authState }: HomeViewProps) {
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               {foundationKeys.map((item) => (
-                <div key={item} className="flex items-center gap-3 rounded-md border bg-background p-3">
+                <div
+                  key={item}
+                  className="flex items-center gap-3 rounded-md border bg-background p-3"
+                >
                   <CheckCircle2 className="text-primary" data-icon="inline-start" />
                   <span className="text-sm font-medium">
                     {t(`checklist.items.${item}`)}
@@ -101,6 +143,38 @@ export function HomeView({ authState }: HomeViewProps) {
                   <h3 className="font-medium">{t(`howItWorks.steps.${item}.title`)}</h3>
                   <p className="mt-2 text-sm text-muted-foreground">
                     {t(`howItWorks.steps.${item}.description`)}
+                  </p>
+                  {stepEnvVars[item] ? (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {stepEnvVars[item].map((envVar) => (
+                        <code
+                          key={envVar}
+                          className="rounded-md border bg-muted px-2 py-1 font-mono text-xs text-foreground"
+                        >
+                          {envVar}
+                        </code>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+        <section className="border-t bg-muted/30">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-12 sm:px-6">
+            <div className="flex flex-col gap-2">
+              <h2 className="text-2xl font-semibold tracking-normal">
+                {t("stack.title")}
+              </h2>
+              <p className="text-muted-foreground">{t("stack.description")}</p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {stackKeys.map((item) => (
+                <div key={item} className="rounded-md border bg-background p-4">
+                  <h3 className="font-medium">{t(`stack.items.${item}.title`)}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {t(`stack.items.${item}.description`)}
                   </p>
                 </div>
               ))}

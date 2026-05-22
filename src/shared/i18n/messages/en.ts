@@ -1,10 +1,11 @@
 const en = {
   metadata: {
-    title: "SaaS Starter",
-    description: "A scalable SaaS scaffold built with Next.js and Supabase.",
+    title: "Project starter",
+    description:
+      "A solo-user project starter built with Next.js and Supabase.",
   },
   common: {
-    brand: "SaaS Starter",
+    brand: "Project starter",
     language: "Language",
     english: "English",
     ukrainian: "Ukrainian",
@@ -40,53 +41,123 @@ const en = {
       createAccount: "Create account",
     },
     badge: "Next.js 16 + Supabase",
-    title: "Your AI generator goes here.",
+    title: "Your AI feature can be here",
     hero: {
       description:
-        "Start with the product interface first. Marketing and SEO sections stay below the working area.",
+        "Use this first screen as the place where your product's core AI workflow will live.",
     },
     description:
-      "Auth, subscriptions, validation, layout, and database boundaries are in place so product features can be added without reshaping the app.",
+      "This starter gives a solo-user MVP the baseline web-app pieces: auth, protected routes, account controls, settings, validation, database boundaries, and extension points for future product flows.",
     actions: {
       results: "Open results",
       auth: "Start with auth",
     },
     generator: {
-      title: "Your generator here",
+      title: "Your feature workspace",
       description:
-        "This placeholder reserves the first-screen workspace for the future AI flow.",
+        "Replace this placeholder with the main flow for your AI feature, tool, or application workflow.",
     },
     about: {
-      badge: "About product",
-      title: "A scalable SaaS foundation with the boring parts already wired.",
+      badge: "About starter",
+      title: "A practical project starter for solo-user MVP web apps.",
     },
     howItWorks: {
       title: "How it works",
-      description: "The final product flow will stay simple and direct.",
+      description:
+        "Configure the environment, connect Supabase, and start replacing placeholders with your product logic.",
       steps: {
-        open: {
-          title: "Open the generator",
-          description: "Users land on the product interface immediately.",
+        publicEnv: {
+          title: "Set public app variables",
+          description:
+            "Add the public variables that point the app at your Supabase project and local or deployed URL.",
         },
-        generate: {
-          title: "Generate a preview",
-          description: "Input data and preview the AI result before committing.",
+        serverEnv: {
+          title: "Add server-only secrets",
+          description:
+            "Set the server-only secrets for account deletion, admin-side cleanup, and anti-abuse storage.",
         },
-        save: {
-          title: "Save after sign in",
-          description: "Saved results live in the protected Results section.",
+        supabase: {
+          title: "Apply the Supabase baseline",
+          description:
+            "Run the migrations so profiles, billing placeholders, usage tracking, triggers, and user-scoped RLS policies exist before real product data is added.",
         },
       },
     },
-    footer: "Built as a solo-user AI SaaS shell.",
+    footer: "Built as a solo-user project starter.",
     checklist: {
       title: "Scaffold checklist",
-      description: "Core SaaS capabilities ready for product-specific slices.",
+      description:
+        "Core app capabilities ready for your product-specific slices.",
       items: {
-        auth: "Supabase SSR auth",
-        model: "User-scoped data model",
-        forms: "Zod validated forms",
-        fsd: "Feature-Sliced Design",
+        registration: "Email/password registration",
+        signIn: "Email/password sign in and sign out",
+        google: "Google OAuth sign in",
+        passwordRecovery: "Forgot and reset password flows",
+        passwordChange: "Password change for email accounts",
+        accountDeletion: "Account deletion with anti-abuse guard",
+        protectedShell: "Protected application layout",
+        profile: "Profile and account details",
+        theme: "Light, dark, and system theme",
+        language: "English and Ukrainian language switching",
+        supabase: "Supabase Auth, Postgres, and user-scoped RLS",
+        forms: "Zod and React Hook Form validation",
+        i18n: "Localized routing and messages with next-intl",
+        extensions: "Placeholder billing, plan, and results screens",
+      },
+    },
+    stack: {
+      title: "Stack",
+      description:
+        "The starter uses a modern typed Next.js stack with local UI primitives and test coverage.",
+      items: {
+        next: {
+          title: "Next.js 16 App Router",
+          description: "File-system routing, server components, route handlers, and proxy support.",
+        },
+        react: {
+          title: "React 19",
+          description: "Current React runtime for server and client components.",
+        },
+        typescript: {
+          title: "TypeScript strict mode",
+          description: "Typed application code, schemas, and Supabase database shapes.",
+        },
+        tailwind: {
+          title: "TailwindCSS 4",
+          description: "Token-based styling through the app stylesheet.",
+        },
+        ui: {
+          title: "Local shadcn-style UI",
+          description: "Reusable components stored in src/shared/ui.",
+        },
+        supabase: {
+          title: "Supabase SSR/Auth/Postgres",
+          description: "Browser, server, proxy, and admin helpers around Supabase.",
+        },
+        zod: {
+          title: "Zod",
+          description: "Runtime schemas with inferred TypeScript types.",
+        },
+        forms: {
+          title: "React Hook Form",
+          description: "Validated forms with @hookform/resolvers/zod.",
+        },
+        query: {
+          title: "TanStack Query",
+          description: "Client-side async state when product features need it.",
+        },
+        theme: {
+          title: "next-themes",
+          description: "Theme switching with persisted light, dark, and system modes.",
+        },
+        i18n: {
+          title: "next-intl",
+          description: "Localized routes, navigation helpers, and message dictionaries.",
+        },
+        testing: {
+          title: "Vitest and Playwright",
+          description: "Unit, component, and browser smoke test tooling.",
+        },
       },
     },
   },
@@ -117,7 +188,7 @@ const en = {
           models: "Access all AI models",
           backgroundRemoval: "Unlimited Background Removal",
           upscale: "Unlimited Upscale",
-          team: "3 Person Team",
+          team: "Higher workspace limits",
           batchExports: "1,000 Batch Exports Monthly",
           license: "Commercial license",
         },
@@ -238,7 +309,8 @@ const en = {
       },
       signUp: {
         title: "Create your account",
-        description: "Start with a personal profile. Teams are created inside the app.",
+        description:
+          "Start with a personal profile. Product-specific features can be added after setup.",
         footerText: "Already have an account?",
         footerLabel: "Sign in",
       },

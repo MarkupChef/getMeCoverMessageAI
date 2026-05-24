@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Anonymous usage limiting gives guest users two free generation attempts while reducing easy limit resets across browser storage changes. The feature keeps the enforcement server-side, stores only HMAC-hashed technical signals, and avoids hard IP blocking so shared networks do not lose access because of one user's activity.
+Anonymous usage limiting gives guest users two free generation attempts while reducing easy limit resets across browser storage changes. The feature keeps enforcement server-side, stores only HMAC-hashed technical signals, and avoids hard IP blocking so shared networks do not lose access because of one user's activity.
 
 ## Core Decisions
 
@@ -21,27 +21,35 @@ Anonymous usage limiting gives guest users two free generation attempts while re
 - Decision: Consume usage through a database function.
   Reason: The `consume_usage_limit` RPC performs a conditional update in the database so concurrent requests cannot exceed the limit.
 
+- Decision: Read the header counter through a non-consuming snapshot action.
+  Reason: A new browser can show the existing remaining credits before the user clicks `Generate`, while brand-new guests do not get database rows until they consume a credit.
+
 ## Key Files
 
-- `src/entities/usage/api/usage.ts` - resolves anonymous identities, attaches new cookies to safe matches, and consumes usage.
-- `src/features/anonymous-usage/api/actions.ts` - server action that reads/sets the anonymous cookie and calls the usage entity.
-- `src/features/anonymous-usage/ui/AnonymousUsageButton.tsx` - hero CTA that lazily loads FingerprintJS and renders exhausted/signup states.
+- `src/entities/usage/api/usage.ts` - resolves anonymous identities, reads non-consuming snapshots, attaches new cookies to safe matches, and consumes usage.
+- `src/features/anonymous-usage/api/actions.ts` - server actions that read/set the anonymous cookie and call the usage entity.
+- `src/features/anonymous-usage/model/anonymous-usage-state.tsx` - shared client state for the hero CTA and header counter.
+- `src/features/anonymous-usage/ui/AnonymousUsageButton.tsx` - hero CTA that consumes one free credit and renders exhausted/signup states.
+- `src/features/anonymous-usage/ui/AnonymousUsageCounter.tsx` - guest header counter that displays human-readable credits.
 - `src/views/home/ui/HomeView.tsx` - places the guest-only anonymous usage button in the hero.
+- `src/widgets/site-header/ui/SiteHeader.tsx` - shows the guest free-credit counter next to the sign-in action.
 - `supabase/migrations/20260523173000_anonymous_usage_identities.sql` - creates identity history storage and atomic consume RPC.
-- `tests/unit/anonymous-usage.test.ts` - covers cookie, legacy, device, ambiguity, IP-only, and exhausted behavior.
+- `tests/unit/anonymous-usage.test.ts` - covers cookie, legacy, device, ambiguity, IP-only, snapshot, and exhausted behavior.
 
 ## Runtime Flow
 
-1. A guest clicks `Использовать 1 лимит` on the home hero.
-2. The client lazily loads open-source FingerprintJS and sends `visitorId` to the server action.
-3. The server action reads the HttpOnly anonymous cookie or creates a new UUID cookie with a 30-day max age.
-4. The action hashes the cookie id, device id, and IP with `ACCOUNT_GUARD_HMAC_SECRET`.
-5. Usage resolution checks `anonymous_usage_identities.anonymous_id_hash` first.
-6. If no identity row exists, legacy `usage_limits.anonymous_id_hash` is checked and backfilled into `anonymous_usage_identities`.
-7. If no cookie match exists, active identity rows with the same `device_hash` are inspected.
-8. One distinct device-matched usage row attaches the new cookie to that row; multiple distinct rows return `signup_required`.
-9. With a resolved usage row, `consume_usage_limit` increments `free_generations_used` only when it is still below `free_generations_limit`.
-10. The client updates the button state. At `2 / 2`, the CTA becomes `Upgrade your plan`.
+1. Guest pages mount `AnonymousUsageCounter`, which lazily loads open-source FingerprintJS and requests a non-consuming usage snapshot.
+2. The snapshot action reads the HttpOnly anonymous cookie or creates a new UUID cookie with a 30-day max age.
+3. The action hashes the cookie id, device id, and IP with `ACCOUNT_GUARD_HMAC_SECRET`.
+4. Snapshot resolution checks cookie identity, legacy anonymous usage, and then active `device_hash` matches without creating a `usage_limits` row for brand-new guests.
+5. The header renders the remaining count as text such as `2 credits`, `1 credit`, or `0 credits`.
+6. A guest clicks `Generate` on the home hero.
+7. Consumption resolution checks `anonymous_usage_identities.anonymous_id_hash` first.
+8. If no identity row exists, legacy `usage_limits.anonymous_id_hash` is checked and backfilled into `anonymous_usage_identities`.
+9. If no cookie match exists, active identity rows with the same `device_hash` are inspected.
+10. One distinct device-matched usage row attaches the new cookie to that row; multiple distinct rows return `signup_required`.
+11. With a resolved usage row, `consume_usage_limit` increments `free_generations_used` only when it is still below `free_generations_limit`.
+12. The shared client state updates both the hero CTA and header counter. At `2 / 2`, the CTA becomes `Upgrade Plan` and shows that free credits have ended.
 
 ## Data / State Model
 
@@ -50,7 +58,8 @@ Anonymous usage limiting gives guest users two free generation attempts while re
 - `anonymous_usage_identities.anonymous_id_hash` has a unique partial index for cookie identity.
 - `anonymous_usage_identities.device_hash` has a non-unique partial index for lookup only.
 - `usage_limits.anonymous_id_hash` remains unique for older rows and compatibility.
-- Valid action statuses are `consumed`, `exhausted`, `signup_required`, and `unavailable`.
+- Valid consume action statuses are `consumed`, `exhausted`, `signup_required`, and `unavailable`.
+- Valid snapshot action statuses are `available`, `exhausted`, `signup_required`, and `unavailable`.
 
 ## Invariants
 
@@ -59,20 +68,23 @@ Anonymous usage limiting gives guest users two free generation attempts while re
 - Keep raw cookie ids, device ids, and IPs out of the database.
 - Keep Supabase service-role access server-side only.
 - Keep anonymous usage consumption atomic in the database.
+- Keep brand-new snapshots non-consuming and non-persistent in `usage_limits`.
 - Preserve legacy lookup until old `usage_limits.anonymous_id_hash` rows are intentionally migrated away.
 
 ## Edge Cases
 
-- Missing storage/env returns `unavailable` instead of crashing the hero.
-- Legacy anonymous rows are resolved and backfilled into identity history.
+- Missing storage/env returns `unavailable` instead of crashing the hero or header.
+- If the header shows `Credits unavailable` and the server logs `PGRST205` for `anonymous_usage_identities`, apply `supabase/migrations/20260523173000_anonymous_usage_identities.sql` to the connected Supabase project.
+- Brand-new guest snapshots return `2` remaining without creating a database usage row.
+- Legacy anonymous rows are resolved and backfilled into identity history during consumption.
 - Multiple usage rows for one `device_hash` return `signup_required` without consuming usage.
-- Clearing cookies can create a new cookie, but a single matching device hash reattaches it to the existing usage row.
+- Clearing cookies can create a new cookie, but a single matching device hash reattaches it to the existing usage row during consumption.
 - Open-source FingerprintJS is best-effort and does not guarantee cross-browser identity.
 
 ## Related Features / Impact
 
 - Account deletion anti-abuse still owns authenticated usage restoration and the shared HMAC secret.
-- Home page tests now cover the anonymous usage CTA.
+- Home page tests now cover the anonymous usage CTA, exhausted state, unavailable state, and guest free-credit counter.
 - Supabase migrations must run before real anonymous usage persistence works.
 - Future billing/plan gating should treat `exhausted` as the upgrade path.
 
@@ -89,12 +101,12 @@ Anonymous usage limiting gives guest users two free generation attempts while re
 - `corepack pnpm typecheck`
 - `corepack pnpm lint`
 - `corepack pnpm test:run`
-- Relevant tests: `tests/unit/anonymous-usage.test.ts`, `tests/unit/home-view.test.tsx`.
-- Manual check: start the app, click the hero button twice, confirm the third state shows `Upgrade your plan`.
+- Relevant tests: `tests/unit/anonymous-usage.test.ts`, `tests/unit/home-view.test.tsx`, `tests/unit/site-header.test.tsx`.
+- Manual check: start the app, confirm the header shows `2 credits` next to sign-in, click the hero `Generate` button twice, and confirm the exhausted state shows `0 credits`, `Upgrade Plan`, and the ended message.
 
 ## Last Updated Context
 
-- Date: 2026-05-23
-- Reason: Created documentation for anonymous usage limiting with cookie/device identity history.
-- Change type: Created
-- Affected areas: anonymous usage entity, anonymous usage feature slice, home hero, Supabase migration, i18n messages, usage tests.
+- Date: 2026-05-24
+- Reason: Added non-consuming anonymous usage snapshots and shared header/hero credit state.
+- Change type: Updated
+- Affected areas: anonymous usage entity, anonymous usage feature slice, app providers, site header, home hero, i18n messages, unit tests.

@@ -33,6 +33,8 @@ describe("SiteHeader", () => {
     const user = userEvent.setup();
     renderWithIntl(<SiteHeader isAuthenticated={false} />);
 
+    expect(screen.getByLabelText("2 credits")).toBeInTheDocument();
+
     await user.click(
       screen.getByRole("button", { name: "Open navigation menu" }),
     );

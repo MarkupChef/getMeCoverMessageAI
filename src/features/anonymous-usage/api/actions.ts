@@ -6,8 +6,10 @@ import { z } from "zod";
 import {
   ANONYMOUS_USAGE_IDENTITY_RETENTION_DAYS,
   consumeAnonymousFreeGeneration,
+  getAnonymousFreeGenerationSnapshot,
   isRecoverableUsageInitializationError,
   type AnonymousUsageResult,
+  type AnonymousUsageSnapshot,
 } from "@/entities/usage";
 import { createSupabaseAdminClient } from "@/shared/api/supabase/admin";
 import { hasAccountDeletionEnv } from "@/shared/config/server-env";
@@ -69,6 +71,42 @@ export async function consumeAnonymousUsageLimitAction(
       cookieStore.get(anonymousCookieName)?.value,
     );
     const result = await consumeAnonymousFreeGeneration({
+      anonymousId: cookieState.anonymousId,
+      deviceId: parsed.data.deviceId ?? null,
+      ip: getClientIpFromHeaders(await headers()),
+      client: createSupabaseAdminClient(),
+    });
+
+    if (cookieState.shouldSetCookie) {
+      setAnonymousCookie(cookieStore, cookieState.anonymousId);
+    }
+
+    return result;
+  } catch (error) {
+    if (isRecoverableUsageInitializationError(error)) {
+      console.error("Anonymous usage storage is not ready.", error);
+      return { status: "unavailable" };
+    }
+
+    throw error;
+  }
+}
+
+export async function getAnonymousUsageLimitAction(
+  input: unknown,
+): Promise<AnonymousUsageSnapshot> {
+  const parsed = anonymousUsageInputSchema.safeParse(input);
+
+  if (!parsed.success || !hasAccountDeletionEnv()) {
+    return { status: "unavailable" };
+  }
+
+  try {
+    const cookieStore = await cookies();
+    const cookieState = getAnonymousCookieState(
+      cookieStore.get(anonymousCookieName)?.value,
+    );
+    const result = await getAnonymousFreeGenerationSnapshot({
       anonymousId: cookieState.anonymousId,
       deviceId: parsed.data.deviceId ?? null,
       ip: getClientIpFromHeaders(await headers()),

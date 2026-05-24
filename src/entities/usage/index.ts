@@ -3,6 +3,7 @@ export {
   initializeAuthenticatedUsage,
   initializeAuthenticatedUsageIfConfigured,
   consumeAnonymousFreeGeneration,
+  getAnonymousFreeGenerationSnapshot,
   getAuthenticatedUsageCount,
   getAuthenticatedUsageCountIfAvailable,
   resolveFreeGenerationsUsedFromGuards,
@@ -28,4 +29,5 @@ export {
   usageLimitSchema,
   type UsageLimit,
   type AnonymousUsageResult,
+  type AnonymousUsageSnapshot,
 } from "./model/schema";

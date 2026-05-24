@@ -24,6 +24,13 @@ export const anonymousUsageStateSchema = z.object({
   remaining: z.number().int().min(0),
 });
 
+export const anonymousUsageSnapshotStateSchema = z.object({
+  status: z.enum(["available", "exhausted"]),
+  used: z.number().int().min(0),
+  limit: z.number().int().positive(),
+  remaining: z.number().int().min(0),
+});
+
 export const anonymousUsageSignupRequiredSchema = z.object({
   status: z.literal("signup_required"),
 });
@@ -38,4 +45,11 @@ export const anonymousUsageResultSchema = z.discriminatedUnion("status", [
   anonymousUsageUnavailableSchema,
 ]);
 
+export const anonymousUsageSnapshotSchema = z.discriminatedUnion("status", [
+  anonymousUsageSnapshotStateSchema,
+  anonymousUsageSignupRequiredSchema,
+  anonymousUsageUnavailableSchema,
+]);
+
 export type AnonymousUsageResult = z.infer<typeof anonymousUsageResultSchema>;
+export type AnonymousUsageSnapshot = z.infer<typeof anonymousUsageSnapshotSchema>;

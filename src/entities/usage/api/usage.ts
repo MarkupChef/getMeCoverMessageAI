@@ -7,6 +7,7 @@ import {
   ANONYMOUS_USAGE_IDENTITY_RETENTION_DAYS,
   AUTHENTICATED_FREE_GENERATIONS_LIMIT,
   type AnonymousUsageResult,
+  type AnonymousUsageSnapshot,
 } from "../model/schema";
 import {
   hashDeviceForGuard,
@@ -174,6 +175,31 @@ function getAnonymousUsageState(
     used: row.free_generations_used,
     limit: row.free_generations_limit,
     remaining,
+  };
+}
+
+function getAnonymousUsageSnapshotState(
+  row: UsageCounterRow,
+): Exclude<AnonymousUsageSnapshot, { status: "signup_required" | "unavailable" }> {
+  const remaining = Math.max(
+    0,
+    row.free_generations_limit - row.free_generations_used,
+  );
+
+  return {
+    status: remaining > 0 ? "available" : "exhausted",
+    used: row.free_generations_used,
+    limit: row.free_generations_limit,
+    remaining,
+  };
+}
+
+function getDefaultAnonymousUsageSnapshot(): AnonymousUsageSnapshot {
+  return {
+    status: "available",
+    used: 0,
+    limit: ANONYMOUS_FREE_GENERATIONS_LIMIT,
+    remaining: ANONYMOUS_FREE_GENERATIONS_LIMIT,
   };
 }
 
@@ -349,6 +375,48 @@ async function prepareAnonymousUsage(
   };
 }
 
+async function resolveAnonymousUsageSnapshot(
+  client: AdminClient,
+  identity: HashedAnonymousIdentity,
+): Promise<AnonymousUsageSnapshot> {
+  const nowIso = new Date().toISOString();
+  const identityUsageId = await findUsageIdByAnonymousIdentity(
+    client,
+    identity.anonymousIdHash,
+    nowIso,
+  );
+
+  if (identityUsageId) {
+    const usage = await findUsageById(client, identityUsageId);
+
+    return usage ? getAnonymousUsageSnapshotState(usage) : { status: "unavailable" };
+  }
+
+  const legacyUsage = await findLegacyAnonymousUsage(client, identity.anonymousIdHash);
+
+  if (legacyUsage) {
+    return getAnonymousUsageSnapshotState(legacyUsage);
+  }
+
+  const deviceUsageIds = await findUsageIdsByDeviceHash(
+    client,
+    identity.deviceHash,
+    nowIso,
+  );
+
+  if (deviceUsageIds.length > 1) {
+    return { status: "signup_required" };
+  }
+
+  if (deviceUsageIds.length === 1) {
+    const usage = await findUsageById(client, deviceUsageIds[0]);
+
+    return usage ? getAnonymousUsageSnapshotState(usage) : { status: "unavailable" };
+  }
+
+  return getDefaultAnonymousUsageSnapshot();
+}
+
 async function consumeUsageLimit(client: AdminClient, usageLimitId: string) {
   const { data, error } = await client
     .rpc("consume_usage_limit", {
@@ -477,6 +545,17 @@ export async function consumeAnonymousFreeGeneration({
   const consumedUsage = await consumeUsageLimit(client, usage.id);
 
   return getAnonymousUsageState(consumedUsage);
+}
+
+export async function getAnonymousFreeGenerationSnapshot({
+  anonymousId,
+  deviceId = null,
+  ip,
+  client = createSupabaseAdminClient(),
+}: AnonymousUsageInput): Promise<AnonymousUsageSnapshot> {
+  const identity = createAnonymousIdentityHashes({ anonymousId, deviceId, ip });
+
+  return resolveAnonymousUsageSnapshot(client, identity);
 }
 
 export async function getAuthenticatedUsageCount(

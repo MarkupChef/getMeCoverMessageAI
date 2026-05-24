@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   ANONYMOUS_FREE_GENERATIONS_LIMIT,
   consumeAnonymousFreeGeneration,
+  getAnonymousFreeGenerationSnapshot,
   hashIpForGuard,
   initializeAnonymousUsage,
 } from "@/entities/usage";
@@ -193,6 +194,26 @@ describe("anonymous usage limits", () => {
     }
   });
 
+  it("returns a default snapshot for a new guest without creating usage rows", async () => {
+    const client = createFakeUsageClient();
+
+    await expect(
+      getAnonymousFreeGenerationSnapshot({
+        anonymousId: "new-cookie",
+        deviceId: "new-device",
+        ip: "127.0.0.1",
+        client: client as never,
+      }),
+    ).resolves.toEqual({
+      status: "available",
+      used: 0,
+      limit: ANONYMOUS_FREE_GENERATIONS_LIMIT,
+      remaining: ANONYMOUS_FREE_GENERATIONS_LIMIT,
+    });
+    expect(client.usageRows).toHaveLength(0);
+    expect(client.identityRows).toHaveLength(0);
+  });
+
   it("uses two anonymous generations and returns exhausted on the third request", async () => {
     const client = createFakeUsageClient();
 
@@ -247,6 +268,27 @@ describe("anonymous usage limits", () => {
     expect(client.identityRows[0].usage_limit_id).toBe(client.usageRows[0].id);
   });
 
+  it("reads a same-cookie anonymous snapshot without consuming usage", async () => {
+    const client = createFakeUsageClient();
+
+    await consumeAnonymousFreeGeneration({
+      anonymousId: "same-cookie",
+      deviceId: "same-device",
+      ip: "127.0.0.1",
+      client: client as never,
+    });
+
+    await expect(
+      getAnonymousFreeGenerationSnapshot({
+        anonymousId: "same-cookie",
+        deviceId: "same-device",
+        ip: "127.0.0.1",
+        client: client as never,
+      }),
+    ).resolves.toMatchObject({ status: "available", used: 1, remaining: 1 });
+    expect(client.usageRows[0].free_generations_used).toBe(1);
+  });
+
   it("attaches a new anonymous cookie when one usage row matches device hash", async () => {
     const client = createFakeUsageClient();
 
@@ -267,6 +309,28 @@ describe("anonymous usage limits", () => {
     expect(result).toMatchObject({ status: "consumed", used: 2 });
     expect(client.usageRows).toHaveLength(1);
     expect(client.identityRows).toHaveLength(2);
+  });
+
+  it("reads an existing device snapshot for a new browser", async () => {
+    const client = createFakeUsageClient();
+
+    await consumeAnonymousFreeGeneration({
+      anonymousId: "first-cookie",
+      deviceId: "shared-device",
+      ip: "127.0.0.1",
+      client: client as never,
+    });
+
+    await expect(
+      getAnonymousFreeGenerationSnapshot({
+        anonymousId: "second-cookie",
+        deviceId: "shared-device",
+        ip: "127.0.0.2",
+        client: client as never,
+      }),
+    ).resolves.toMatchObject({ status: "available", used: 1, remaining: 1 });
+    expect(client.usageRows).toHaveLength(1);
+    expect(client.identityRows).toHaveLength(1);
   });
 
   it("returns signup_required and does not merge when device hash is ambiguous", async () => {
@@ -296,6 +360,62 @@ describe("anonymous usage limits", () => {
     expect(result).toEqual({ status: "signup_required" });
     expect(client.usageRows).toHaveLength(2);
     expect(client.identityRows).toHaveLength(2);
+  });
+
+  it("returns signup_required snapshots for ambiguous device hashes", async () => {
+    const client = createFakeUsageClient();
+
+    await consumeAnonymousFreeGeneration({
+      anonymousId: "first-cookie",
+      deviceId: "ambiguous-device",
+      ip: "127.0.0.1",
+      client: client as never,
+    });
+    await consumeAnonymousFreeGeneration({
+      anonymousId: "second-cookie",
+      deviceId: "other-device",
+      ip: "127.0.0.2",
+      client: client as never,
+    });
+    client.identityRows[1].device_hash = client.identityRows[0].device_hash;
+
+    await expect(
+      getAnonymousFreeGenerationSnapshot({
+        anonymousId: "third-cookie",
+        deviceId: "ambiguous-device",
+        ip: "127.0.0.3",
+        client: client as never,
+      }),
+    ).resolves.toEqual({ status: "signup_required" });
+    expect(client.usageRows).toHaveLength(2);
+    expect(client.identityRows).toHaveLength(2);
+  });
+
+  it("returns exhausted snapshots without consuming another usage", async () => {
+    const client = createFakeUsageClient();
+
+    await consumeAnonymousFreeGeneration({
+      anonymousId: "anon-cookie",
+      deviceId: "device",
+      ip: "127.0.0.1",
+      client: client as never,
+    });
+    await consumeAnonymousFreeGeneration({
+      anonymousId: "anon-cookie",
+      deviceId: "device",
+      ip: "127.0.0.1",
+      client: client as never,
+    });
+
+    await expect(
+      getAnonymousFreeGenerationSnapshot({
+        anonymousId: "anon-cookie",
+        deviceId: "device",
+        ip: "127.0.0.1",
+        client: client as never,
+      }),
+    ).resolves.toMatchObject({ status: "exhausted", used: 2, remaining: 0 });
+    expect(client.usageRows[0].free_generations_used).toBe(2);
   });
 
   it("does not merge anonymous users by IP alone", async () => {

@@ -15,6 +15,9 @@ const en = {
     pricing: "Pricing",
     plan: "Plan",
     signIn: "Sign in",
+    freeLimitLabel: "{limit} free uses without registration",
+    freeCredits: "{count, plural, one {# credit} other {# credits}}",
+    freeCreditsUnavailable: "Credits unavailable",
   },
   siteFooter: {
     privacy: "Privacy Policy",
@@ -36,10 +39,12 @@ const en = {
     goHome: "Go home",
   },
   anonymousUsage: {
-    useLimit: "Использовать 1 лимит",
-    upgrade: "Upgrade your plan",
+    useLimit: "Generate",
+    upgrade: "Upgrade Plan",
     createAccount: "Create account",
-    remaining: "{remaining} free uses left.",
+    remaining:
+      "{remaining, plural, one {# free credit left.} other {# free credits left.}}",
+    exhausted: "Your free credits have ended.",
     signupRequired: "Create an account or sign in to continue.",
     unavailable: "Free usage is unavailable right now. Try again later.",
   },

@@ -17,6 +17,10 @@ const uk = {
     pricing: "Ціни",
     plan: "План",
     signIn: "Увійти",
+    freeLimitLabel: "{limit} безкоштовні спроби без реєстрації",
+    freeCredits:
+      "{count, plural, one {# кредит} few {# кредити} many {# кредитів} other {# кредиту}}",
+    freeCreditsUnavailable: "Кредити недоступні",
   },
   siteFooter: {
     privacy: "Політика конфіденційності",
@@ -38,10 +42,12 @@ const uk = {
     goHome: "На головну",
   },
   anonymousUsage: {
-    useLimit: "Использовать 1 лимит",
-    upgrade: "Upgrade your plan",
+    useLimit: "Сгенерувати",
+    upgrade: "Upgrade Plan",
     createAccount: "Створити акаунт",
-    remaining: "Залишилося безкоштовних спроб: {remaining}.",
+    remaining:
+      "{remaining, plural, one {# free credit left.} other {# free credits left.}}",
+    exhausted: "Your free credits have ended.",
     signupRequired: "Створіть акаунт або увійдіть, щоб продовжити.",
     unavailable: "Безкоштовне використання тимчасово недоступне.",
   },

@@ -34,3 +34,24 @@ vi.mock("@/shared/i18n", () => ({
   usePathname: () => "/dashboard",
   useRouter: () => i18nRouter,
 }));
+
+vi.mock("@fingerprintjs/fingerprintjs", () => ({
+  load: vi.fn(async () => ({
+    get: vi.fn(async () => ({ visitorId: "test-device" })),
+  })),
+}));
+
+vi.mock("@/features/anonymous-usage/api/actions", () => ({
+  getAnonymousUsageLimitAction: vi.fn(async () => ({
+    status: "available",
+    used: 0,
+    limit: 2,
+    remaining: 2,
+  })),
+  consumeAnonymousUsageLimitAction: vi.fn(async () => ({
+    status: "consumed",
+    used: 1,
+    limit: 2,
+    remaining: 1,
+  })),
+}));

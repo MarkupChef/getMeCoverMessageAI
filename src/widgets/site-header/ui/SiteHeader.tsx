@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { AnonymousUsageCounter } from "@/features/anonymous-usage";
 import { ThemeToggle } from "@/features/theme-toggle";
 import { Link } from "@/shared/i18n";
 import { Button } from "@/shared/ui/button";
@@ -43,9 +44,12 @@ export function SiteHeader({
           {isAuthenticated ? (
             userMenu
           ) : showAuthAction ? (
-            <Button asChild>
-              <Link href="/sign-in">{tHeader("signIn")}</Link>
-            </Button>
+            <>
+              <AnonymousUsageCounter />
+              <Button asChild>
+                <Link href="/sign-in">{tHeader("signIn")}</Link>
+              </Button>
+            </>
           ) : null}
           <MobileNavigationMenu items={navigationItems} />
         </div>

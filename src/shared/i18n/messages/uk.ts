@@ -17,6 +17,11 @@ const uk = {
     pricing: "Ціни",
     plan: "План",
     signIn: "Увійти",
+    freeLimitLabel: "{limit} безкоштовні спроби без реєстрації",
+    freeCredits:
+      "{count, plural, one {# кредит} few {# кредити} many {# кредитів} other {# кредиту}}",
+    creditsLoading: "Кредити завантажуються",
+    freeCreditsUnavailable: "Кредити недоступні",
   },
   siteFooter: {
     privacy: "Політика конфіденційності",
@@ -36,6 +41,16 @@ const uk = {
     notFoundTitle: "Сторінку не знайдено",
     notFoundDescription: "Сторінка, яку ви шукаєте, не існує.",
     goHome: "На головну",
+  },
+  anonymousUsage: {
+    useLimit: "Сгенерувати",
+    upgrade: "Upgrade Plan",
+    createAccount: "Створити акаунт",
+    remaining:
+      "{remaining, plural, one {# free credit left.} other {# free credits left.}}",
+    exhausted: "Your free credits have ended.",
+    signupRequired: "Створіть акаунт або увійдіть, щоб продовжити.",
+    unavailable: "Безкоштовне використання тимчасово недоступне.",
   },
   home: {
     nav: {
@@ -97,6 +112,7 @@ const uk = {
         passwordRecovery: "Forgot і reset password flows",
         passwordChange: "Зміна пароля для email-акаунтів",
         accountDeletion: "Видалення акаунта з anti-abuse guard",
+        anonymousUsageLimits: "Безкоштовні кредити для гостей",
         protectedShell: "Захищений app layout",
         profile: "Профіль і дані акаунта",
         theme: "Світла, темна і системна тема",

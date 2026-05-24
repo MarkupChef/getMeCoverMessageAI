@@ -15,6 +15,10 @@ const en = {
     pricing: "Pricing",
     plan: "Plan",
     signIn: "Sign in",
+    freeLimitLabel: "{limit} free uses without registration",
+    freeCredits: "{count, plural, one {# credit} other {# credits}}",
+    creditsLoading: "Loading credits",
+    freeCreditsUnavailable: "Credits unavailable",
   },
   siteFooter: {
     privacy: "Privacy Policy",
@@ -34,6 +38,16 @@ const en = {
     notFoundTitle: "Page not found",
     notFoundDescription: "The page you are looking for does not exist.",
     goHome: "Go home",
+  },
+  anonymousUsage: {
+    useLimit: "Generate",
+    upgrade: "Upgrade Plan",
+    createAccount: "Create account",
+    remaining:
+      "{remaining, plural, one {# free credit left.} other {# free credits left.}}",
+    exhausted: "Your free credits have ended.",
+    signupRequired: "Create an account or sign in to continue.",
+    unavailable: "Free usage is unavailable right now. Try again later.",
   },
   home: {
     nav: {
@@ -95,6 +109,7 @@ const en = {
         passwordRecovery: "Forgot and reset password flows",
         passwordChange: "Password change for email accounts",
         accountDeletion: "Account deletion with anti-abuse guard",
+        anonymousUsageLimits: "Anonymous free-credit limits",
         protectedShell: "Protected application layout",
         profile: "Profile and account details",
         theme: "Light, dark, and system theme",

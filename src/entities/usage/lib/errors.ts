@@ -28,7 +28,9 @@ export function isMissingAccountStorageError(error: unknown) {
     errorText.includes("42p01") ||
     errorText.includes("pgrst205") ||
     errorText.includes("usage_limits") ||
-    errorText.includes("deleted_user_guards")
+    errorText.includes("deleted_user_guards") ||
+    errorText.includes("anonymous_usage_identities") ||
+    errorText.includes("consume_usage_limit")
   );
 }
 

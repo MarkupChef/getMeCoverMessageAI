@@ -1,8 +1,11 @@
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import { getAnonymousUsageLimitAction } from "@/features/anonymous-usage/api/actions";
 import { SiteHeader } from "@/widgets/site-header";
 import { renderWithIntl } from "./render-with-intl";
+
+const mockedGetAnonymousUsageLimitAction = vi.mocked(getAnonymousUsageLimitAction);
 
 vi.mock("@/features/theme-toggle", () => ({
   ThemeToggle: () => <button type="button">Theme</button>,
@@ -33,6 +36,10 @@ describe("SiteHeader", () => {
     const user = userEvent.setup();
     renderWithIntl(<SiteHeader isAuthenticated={false} />);
 
+    expect(screen.getByRole("status", { name: "Loading credits" })).toBeInTheDocument();
+    expect(screen.queryByLabelText("2 credits")).not.toBeInTheDocument();
+    expect(await screen.findByLabelText("2 credits")).toBeInTheDocument();
+
     await user.click(
       screen.getByRole("button", { name: "Open navigation menu" }),
     );
@@ -43,6 +50,16 @@ describe("SiteHeader", () => {
       "href",
       "/pricing",
     );
+  });
+
+  it("shows unavailable guest usage feedback without crashing", async () => {
+    mockedGetAnonymousUsageLimitAction.mockResolvedValueOnce({
+      status: "unavailable",
+    });
+
+    renderWithIntl(<SiteHeader isAuthenticated={false} />);
+
+    expect(await screen.findByLabelText("Credits unavailable")).toBeInTheDocument();
   });
 
   it("keeps the account menu before the mobile menu trigger", () => {

@@ -2,6 +2,7 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import type { ServerAuthState } from "@/entities/session";
+import { AnonymousUsageButton } from "@/features/anonymous-usage";
 import { UserMenu } from "@/widgets/user-menu";
 import { SiteHeader } from "@/widgets/site-header";
 import { Link } from "@/shared/i18n";
@@ -16,6 +17,7 @@ const foundationKeys = [
   "passwordRecovery",
   "passwordChange",
   "accountDeletion",
+  "anonymousUsageLimits",
   "protectedShell",
   "profile",
   "theme",
@@ -264,12 +266,14 @@ export function HomeView({ authState }: HomeViewProps) {
                 {t("hero.description")}
               </p>
             </div>
-            <Button asChild className="w-fit" size="lg">
-              <Link href={isAuthenticated ? "/results" : "/sign-up"}>
-                {isAuthenticated ? t("actions.results") : t("actions.auth")}
-                <ArrowRight data-icon="inline-end" />
-              </Link>
-            </Button>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button asChild className="w-fit" size="lg">
+                <Link href={isAuthenticated ? "/results" : "/sign-up"}>
+                  {isAuthenticated ? t("actions.results") : t("actions.auth")}
+                  <ArrowRight data-icon="inline-end" />
+                </Link>
+              </Button>
+            </div>
           </div>
           <Card className="border-dashed">
             <CardContent className="flex min-h-80 flex-col items-center justify-center gap-3 p-6 text-center">
@@ -282,6 +286,11 @@ export function HomeView({ authState }: HomeViewProps) {
               <p className="max-w-sm text-sm text-muted-foreground">
                 {t("generator.description")}
               </p>
+              {isAuthenticated ? null : (
+                <div className="mt-2 flex justify-center">
+                  <AnonymousUsageButton />
+                </div>
+              )}
             </CardContent>
           </Card>
         </section>

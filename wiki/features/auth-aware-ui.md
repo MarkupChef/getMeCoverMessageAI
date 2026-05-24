@@ -58,7 +58,7 @@ Auth-aware UI keeps public routes consistent with the signed-in state without re
 ## Related Features / Impact
 
 - Theme switching is now available from the public home header.
-- Anonymous usage limiting adds a guest-only `2 credits` style counter next to the sign-in action.
+- Anonymous usage limiting adds a guest-only `2 credits` style counter next to the sign-in action after its loading skeleton resolves.
 - Dashboard/profile route protection remains in the protected route group.
 - Account deletion API remains independently protected with `getUser()`.
 - Sign-in/sign-up tests now cover authenticated redirects through mocked server auth state.

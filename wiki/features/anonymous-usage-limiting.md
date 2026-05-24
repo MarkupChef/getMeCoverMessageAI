@@ -29,9 +29,9 @@ Anonymous usage limiting gives guest users two free generation attempts while re
 - `src/entities/usage/api/usage.ts` - resolves anonymous identities, reads non-consuming snapshots, attaches new cookies to safe matches, and consumes usage.
 - `src/features/anonymous-usage/api/actions.ts` - server actions that read/set the anonymous cookie and call the usage entity.
 - `src/features/anonymous-usage/model/anonymous-usage-state.tsx` - shared client state for the hero CTA and header counter.
-- `src/features/anonymous-usage/ui/AnonymousUsageButton.tsx` - hero CTA that consumes one free credit and renders exhausted/signup states.
+- `src/features/anonymous-usage/ui/AnonymousUsageButton.tsx` - workspace CTA that consumes one free credit and renders exhausted/signup button states.
 - `src/features/anonymous-usage/ui/AnonymousUsageCounter.tsx` - guest header counter that displays human-readable credits.
-- `src/views/home/ui/HomeView.tsx` - places the guest-only anonymous usage button in the hero.
+- `src/views/home/ui/HomeView.tsx` - places the guest-only anonymous usage button in the workspace card.
 - `src/widgets/site-header/ui/SiteHeader.tsx` - shows the guest free-credit counter next to the sign-in action.
 - `supabase/migrations/20260523173000_anonymous_usage_identities.sql` - creates identity history storage and atomic consume RPC.
 - `tests/unit/anonymous-usage.test.ts` - covers cookie, legacy, device, ambiguity, IP-only, snapshot, and exhausted behavior.
@@ -42,14 +42,14 @@ Anonymous usage limiting gives guest users two free generation attempts while re
 2. The snapshot action reads the HttpOnly anonymous cookie or creates a new UUID cookie with a 30-day max age.
 3. The action hashes the cookie id, device id, and IP with `ACCOUNT_GUARD_HMAC_SECRET`.
 4. Snapshot resolution checks cookie identity, legacy anonymous usage, and then active `device_hash` matches without creating a `usage_limits` row for brand-new guests.
-5. The header renders the remaining count as text such as `2 credits`, `1 credit`, or `0 credits`.
-6. A guest clicks `Generate` on the home hero.
+5. The header shows a skeleton until the snapshot resolves, then renders the remaining count as text such as `2 credits`, `1 credit`, or `0 credits`.
+6. A guest clicks `Generate` in the `Your feature workspace` card.
 7. Consumption resolution checks `anonymous_usage_identities.anonymous_id_hash` first.
 8. If no identity row exists, legacy `usage_limits.anonymous_id_hash` is checked and backfilled into `anonymous_usage_identities`.
 9. If no cookie match exists, active identity rows with the same `device_hash` are inspected.
 10. One distinct device-matched usage row attaches the new cookie to that row; multiple distinct rows return `signup_required`.
 11. With a resolved usage row, `consume_usage_limit` increments `free_generations_used` only when it is still below `free_generations_limit`.
-12. The shared client state updates both the hero CTA and header counter. At `2 / 2`, the CTA becomes `Upgrade Plan` and shows that free credits have ended.
+12. The shared client state updates both the workspace CTA and header counter. At `2 / 2`, the CTA becomes `Upgrade Plan`.
 
 ## Data / State Model
 
@@ -84,7 +84,7 @@ Anonymous usage limiting gives guest users two free generation attempts while re
 ## Related Features / Impact
 
 - Account deletion anti-abuse still owns authenticated usage restoration and the shared HMAC secret.
-- Home page tests now cover the anonymous usage CTA, exhausted state, unavailable state, and guest free-credit counter.
+- Home page tests now cover the anonymous usage CTA, exhausted state, unavailable state, skeleton loading, and guest credit counter.
 - Supabase migrations must run before real anonymous usage persistence works.
 - Future billing/plan gating should treat `exhausted` as the upgrade path.
 
@@ -102,11 +102,11 @@ Anonymous usage limiting gives guest users two free generation attempts while re
 - `corepack pnpm lint`
 - `corepack pnpm test:run`
 - Relevant tests: `tests/unit/anonymous-usage.test.ts`, `tests/unit/home-view.test.tsx`, `tests/unit/site-header.test.tsx`.
-- Manual check: start the app, confirm the header shows `2 credits` next to sign-in, click the hero `Generate` button twice, and confirm the exhausted state shows `0 credits`, `Upgrade Plan`, and the ended message.
+- Manual check: start the app, confirm the header shows a skeleton before the snapshot and then `2 credits` next to sign-in, click the workspace `Generate` button twice, and confirm the exhausted state shows `0 credits` and `Upgrade Plan`.
 
 ## Last Updated Context
 
 - Date: 2026-05-24
-- Reason: Added non-consuming anonymous usage snapshots and shared header/hero credit state.
+- Reason: Moved generation CTA into the workspace card and added skeleton loading for the guest counter.
 - Change type: Updated
 - Affected areas: anonymous usage entity, anonymous usage feature slice, app providers, site header, home hero, i18n messages, unit tests.

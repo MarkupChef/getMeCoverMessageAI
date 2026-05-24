@@ -10,7 +10,6 @@ import {
   type ReactNode,
 } from "react";
 import {
-  ANONYMOUS_FREE_GENERATIONS_LIMIT,
   type AnonymousUsageResult,
   type AnonymousUsageSnapshot,
 } from "@/entities/usage";
@@ -21,6 +20,9 @@ import {
 
 type AnonymousUsageState =
   | AnonymousUsageSnapshot
+  | {
+      status: "idle";
+    }
   | {
       status: "error";
     };
@@ -33,11 +35,8 @@ type AnonymousUsageContextValue = {
   consume: () => void;
 };
 
-const defaultAnonymousUsageState: AnonymousUsageSnapshot = {
-  status: "available",
-  used: 0,
-  limit: ANONYMOUS_FREE_GENERATIONS_LIMIT,
-  remaining: ANONYMOUS_FREE_GENERATIONS_LIMIT,
+const defaultAnonymousUsageState: AnonymousUsageState = {
+  status: "idle",
 };
 
 const AnonymousUsageContext = createContext<AnonymousUsageContextValue | null>(null);

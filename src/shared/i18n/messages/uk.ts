@@ -20,6 +20,7 @@ const uk = {
     freeLimitLabel: "{limit} безкоштовні спроби без реєстрації",
     freeCredits:
       "{count, plural, one {# кредит} few {# кредити} many {# кредитів} other {# кредиту}}",
+    creditsLoading: "Кредити завантажуються",
     freeCreditsUnavailable: "Кредити недоступні",
   },
   siteFooter: {
@@ -111,6 +112,7 @@ const uk = {
         passwordRecovery: "Forgot і reset password flows",
         passwordChange: "Зміна пароля для email-акаунтів",
         accountDeletion: "Видалення акаунта з anti-abuse guard",
+        anonymousUsageLimits: "Безкоштовні кредити для гостей",
         protectedShell: "Захищений app layout",
         profile: "Профіль і дані акаунта",
         theme: "Світла, темна і системна тема",

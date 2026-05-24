@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -20,7 +20,7 @@ describe("HomeView", () => {
     mockedGetAnonymousUsageLimitAction.mockClear();
   });
 
-  it("renders guest navigation and sign-up CTA", () => {
+  it("renders guest navigation and sign-up CTA", async () => {
     renderWithIntl(
       <ThemeProvider>
         <HomeView authState={{ status: "guest" }} />
@@ -40,13 +40,18 @@ describe("HomeView", () => {
       "href",
       "/sign-up",
     );
-    expect(screen.getByText("Your feature workspace")).toBeInTheDocument();
+    const workspace = screen
+      .getByRole("heading", { name: "Your feature workspace" })
+      .closest("div");
+
+    expect(workspace).not.toBeNull();
     expect(
-      screen.getByRole("button", { name: "Generate" }),
+      within(workspace as HTMLElement).getByRole("button", { name: "Generate" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByLabelText("2 credits"),
+      await screen.findByLabelText("2 credits"),
     ).toBeInTheDocument();
+    expect(screen.getByText("Anonymous free-credit limits")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
         name: "Your AI feature can be here",
@@ -123,7 +128,7 @@ describe("HomeView", () => {
 
     await user.click(screen.getByRole("button", { name: "Generate" }));
     expect(await screen.findByLabelText("1 credit")).toBeInTheDocument();
-    expect(screen.getByText("1 free credit left.")).toBeInTheDocument();
+    expect(screen.queryByText("1 free credit left.")).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Generate" }));
 
@@ -134,7 +139,9 @@ describe("HomeView", () => {
       "href",
       "/pricing",
     );
-    expect(screen.getByText("Your free credits have ended.")).toBeInTheDocument();
+    expect(
+      screen.queryByText("Your free credits have ended."),
+    ).not.toBeInTheDocument();
   });
 
   it("shows unavailable guest usage feedback without crashing", async () => {

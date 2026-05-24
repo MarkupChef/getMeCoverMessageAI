@@ -17,6 +17,7 @@ const foundationKeys = [
   "passwordRecovery",
   "passwordChange",
   "accountDeletion",
+  "anonymousUsageLimits",
   "protectedShell",
   "profile",
   "theme",
@@ -272,7 +273,6 @@ export function HomeView({ authState }: HomeViewProps) {
                   <ArrowRight data-icon="inline-end" />
                 </Link>
               </Button>
-              {isAuthenticated ? null : <AnonymousUsageButton />}
             </div>
           </div>
           <Card className="border-dashed">
@@ -286,6 +286,11 @@ export function HomeView({ authState }: HomeViewProps) {
               <p className="max-w-sm text-sm text-muted-foreground">
                 {t("generator.description")}
               </p>
+              {isAuthenticated ? null : (
+                <div className="mt-2 flex justify-center">
+                  <AnonymousUsageButton />
+                </div>
+              )}
             </CardContent>
           </Card>
         </section>

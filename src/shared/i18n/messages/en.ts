@@ -17,6 +17,7 @@ const en = {
     signIn: "Sign in",
     freeLimitLabel: "{limit} free uses without registration",
     freeCredits: "{count, plural, one {# credit} other {# credits}}",
+    creditsLoading: "Loading credits",
     freeCreditsUnavailable: "Credits unavailable",
   },
   siteFooter: {
@@ -108,6 +109,7 @@ const en = {
         passwordRecovery: "Forgot and reset password flows",
         passwordChange: "Password change for email accounts",
         accountDeletion: "Account deletion with anti-abuse guard",
+        anonymousUsageLimits: "Anonymous free-credit limits",
         protectedShell: "Protected application layout",
         profile: "Profile and account details",
         theme: "Light, dark, and system theme",

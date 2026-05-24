@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Badge } from "@/shared/ui/badge";
+import { Skeleton } from "@/shared/ui/skeleton";
 import { useAnonymousUsage } from "../model/anonymous-usage-state";
 
 function getRemainingCredits(state: ReturnType<typeof useAnonymousUsage>["state"]) {
@@ -19,12 +20,22 @@ function getRemainingCredits(state: ReturnType<typeof useAnonymousUsage>["state"
 
 export function AnonymousUsageCounter() {
   const t = useTranslations("siteHeader");
-  const { initialize, state } = useAnonymousUsage();
+  const { initialize, isLoading, state } = useAnonymousUsage();
   const remainingCredits = getRemainingCredits(state);
 
   useEffect(() => {
     initialize();
   }, [initialize]);
+
+  if (state.status === "idle" || isLoading) {
+    return (
+      <Skeleton
+        aria-label={t("creditsLoading")}
+        className="h-6 w-20"
+        role="status"
+      />
+    );
+  }
 
   if (remainingCredits === null) {
     return (

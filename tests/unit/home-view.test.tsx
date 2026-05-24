@@ -25,10 +25,13 @@ describe("HomeView", () => {
       "href",
       "/sign-up",
     );
-    expect(screen.getByText("Your generator here")).toBeInTheDocument();
+    expect(screen.getByText("Your feature workspace")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Использовать 1 лимит" }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
-        name: "A scalable SaaS foundation with the boring parts already wired.",
+        name: "Your AI feature can be here",
       }),
     ).toBeInTheDocument();
     expect(

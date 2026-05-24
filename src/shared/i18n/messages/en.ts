@@ -35,6 +35,14 @@ const en = {
     notFoundDescription: "The page you are looking for does not exist.",
     goHome: "Go home",
   },
+  anonymousUsage: {
+    useLimit: "Использовать 1 лимит",
+    upgrade: "Upgrade your plan",
+    createAccount: "Create account",
+    remaining: "{remaining} free uses left.",
+    signupRequired: "Create an account or sign in to continue.",
+    unavailable: "Free usage is unavailable right now. Try again later.",
+  },
   home: {
     nav: {
       signIn: "Sign in",

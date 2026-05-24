@@ -37,6 +37,14 @@ const uk = {
     notFoundDescription: "Сторінка, яку ви шукаєте, не існує.",
     goHome: "На головну",
   },
+  anonymousUsage: {
+    useLimit: "Использовать 1 лимит",
+    upgrade: "Upgrade your plan",
+    createAccount: "Створити акаунт",
+    remaining: "Залишилося безкоштовних спроб: {remaining}.",
+    signupRequired: "Створіть акаунт або увійдіть, щоб продовжити.",
+    unavailable: "Безкоштовне використання тимчасово недоступне.",
+  },
   home: {
     nav: {
       signIn: "Увійти",

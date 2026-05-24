@@ -23,6 +23,17 @@ export function hashUserIdForGuard(userId: string) {
   );
 }
 
+export function hashDeviceForGuard(deviceId: string | null) {
+  if (!deviceId) {
+    return null;
+  }
+
+  return createHmacSha256(
+    deviceId.trim(),
+    getAccountDeletionEnv().ACCOUNT_GUARD_HMAC_SECRET,
+  );
+}
+
 export function hashIpForGuard(ip: string | null) {
   if (!ip) {
     return null;
@@ -33,4 +44,3 @@ export function hashIpForGuard(ip: string | null) {
     getAccountDeletionEnv().ACCOUNT_GUARD_HMAC_SECRET,
   );
 }
-

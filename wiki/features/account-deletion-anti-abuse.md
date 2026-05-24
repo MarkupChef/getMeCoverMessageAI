@@ -4,7 +4,7 @@
 
 This feature lets a signed-in user delete their account from the protected profile page while preserving a minimal anti-abuse trail. Personal account data is removed through Supabase Auth deletion and cascading database constraints, while HMAC-hashed technical signals are retained temporarily to prevent deleting and re-registering for fresh free-generation limits.
 
-It also introduces the first usage-limit infrastructure for anonymous and authenticated users. Authenticated users get a limit of `5`; anonymous users get a limit of `3`.
+It also introduced the first usage-limit infrastructure for anonymous and authenticated users. Authenticated users get a limit of `5`; anonymous users get a limit of `2`, with anonymous identity history now tracked separately in `anonymous_usage_identities`.
 
 ## Core Decisions
 
@@ -69,9 +69,14 @@ Registration and OAuth flows also call usage initialization after Supabase Auth 
 
 - `usage_limits`
   - Stores `user_id` or `anonymous_id_hash`, optional `email_hash` and `ip_hash`, used count, and limit.
-  - Authenticated limit is `5`; anonymous limit is `3`.
+  - Authenticated limit is `5`; anonymous limit is `2`.
   - Existing profile backfill sets authenticated rows to `0 / 5`.
-  - `user_id` and `anonymous_id_hash` must be unique enough for usage initialization and anonymous usage creation.
+  - `user_id` and legacy `anonymous_id_hash` remain unique enough for usage initialization and anonymous compatibility.
+
+- `anonymous_usage_identities`
+  - Stores anonymous cookie, device, and IP hashes for anonymous usage resolution.
+  - Keeps identity rows for 30 days.
+  - Uses a unique partial index on `anonymous_id_hash` and a non-unique partial index on `device_hash`.
 
 - Server env
   - `SUPABASE_SERVICE_ROLE_KEY` is required for admin deletion and private table access.
@@ -112,6 +117,7 @@ Registration and OAuth flows also call usage initialization after Supabase Auth 
 - If adding device tracking, document privacy implications and keep `device_hash` hashed.
 - If adding generation APIs, update `usage_limits.free_generations_used` through server-side code only.
 - If changing retention, update `DELETED_USER_GUARD_RETENTION_DAYS`, UI copy, and any cleanup job.
+- If changing anonymous usage identity behavior, keep IP-only matches non-blocking and `device_hash` non-unique.
 - If changing auth routes, keep email/password sign-up and OAuth callback both initializing/restoring usage.
 - If editing migrations after they were applied manually in Supabase SQL Editor, add a follow-up migration instead of assuming the previous SQL can be replayed safely.
 
@@ -141,7 +147,7 @@ Registration and OAuth flows also call usage initialization after Supabase Auth 
 
 ## Last Updated Context
 
-- Date: 2026-05-18
-- Reason: Updated documentation to match the revised feature wiki template and current account deletion implementation.
+- Date: 2026-05-23
+- Reason: Updated usage model notes after anonymous usage limiting moved identity history to `anonymous_usage_identities`.
 - Change type: Updated
-- Affected areas: `wiki/features/account-deletion-anti-abuse.md`, account deletion flow, usage initialization, Supabase migrations, profile route, auth sign-up/OAuth callbacks.
+- Affected areas: `wiki/features/account-deletion-anti-abuse.md`, usage initialization, anonymous usage identity storage, Supabase migrations.

@@ -143,9 +143,51 @@ export interface Database {
         };
         Relationships: [];
       };
+      anonymous_usage_identities: {
+        Row: {
+          id: string;
+          usage_limit_id: string;
+          anonymous_id_hash: string | null;
+          device_hash: string | null;
+          ip_hash: string | null;
+          expires_at: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          usage_limit_id: string;
+          anonymous_id_hash?: string | null;
+          device_hash?: string | null;
+          ip_hash?: string | null;
+          expires_at: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          anonymous_id_hash?: string | null;
+          device_hash?: string | null;
+          ip_hash?: string | null;
+          expires_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      consume_usage_limit: {
+        Args: {
+          p_usage_limit_id: string;
+        };
+        Returns: {
+          id: string;
+          free_generations_used: number;
+          free_generations_limit: number;
+          consumed: boolean;
+        }[];
+      };
+    };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

@@ -4,9 +4,12 @@ import type { Database } from "@/shared/types/database";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   ANONYMOUS_FREE_GENERATIONS_LIMIT,
+  ANONYMOUS_USAGE_IDENTITY_RETENTION_DAYS,
   AUTHENTICATED_FREE_GENERATIONS_LIMIT,
+  type AnonymousUsageResult,
 } from "../model/schema";
 import {
+  hashDeviceForGuard,
   hashEmailForGuard,
   hashIpForGuard,
   hashUserIdForGuard,
@@ -32,8 +35,34 @@ type AuthenticatedUsageInput = {
 
 type AnonymousUsageInput = {
   anonymousId: string;
+  deviceId?: string | null;
   ip: string | null;
   client?: AdminClient;
+};
+
+type HashedAnonymousIdentity = {
+  anonymousIdHash: string;
+  deviceHash: string | null;
+  ipHash: string | null;
+};
+
+type PreparedAnonymousUsage =
+  | {
+      status: "ready";
+      usageLimitId: string;
+    }
+  | {
+      status: "signup_required";
+    };
+
+type UsageCounterRow = {
+  id: string;
+  free_generations_used: number;
+  free_generations_limit: number;
+};
+
+type ConsumeUsageLimitRow = UsageCounterRow & {
+  consumed: boolean;
 };
 
 async function upsertAuthenticatedUsage(
@@ -107,6 +136,231 @@ async function upsertAnonymousUsage(
   if (error) {
     throw error;
   }
+}
+
+function addDays(date: Date, days: number) {
+  const nextDate = new Date(date);
+  nextDate.setUTCDate(nextDate.getUTCDate() + days);
+
+  return nextDate;
+}
+
+function getAnonymousIdentityExpiry(now = new Date()) {
+  return addDays(now, ANONYMOUS_USAGE_IDENTITY_RETENTION_DAYS).toISOString();
+}
+
+function createAnonymousIdentityHashes({
+  anonymousId,
+  deviceId = null,
+  ip,
+}: Omit<AnonymousUsageInput, "client">): HashedAnonymousIdentity {
+  return {
+    anonymousIdHash: hashUserIdForGuard(anonymousId),
+    deviceHash: hashDeviceForGuard(deviceId),
+    ipHash: hashIpForGuard(ip),
+  };
+}
+
+function getAnonymousUsageState(
+  row: ConsumeUsageLimitRow,
+): Exclude<AnonymousUsageResult, { status: "signup_required" | "unavailable" }> {
+  const remaining = Math.max(
+    0,
+    row.free_generations_limit - row.free_generations_used,
+  );
+
+  return {
+    status: row.consumed ? "consumed" : "exhausted",
+    used: row.free_generations_used,
+    limit: row.free_generations_limit,
+    remaining,
+  };
+}
+
+async function findUsageById(client: AdminClient, id: string) {
+  const { data, error } = await client
+    .from("usage_limits")
+    .select("id, free_generations_used, free_generations_limit")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+async function findLegacyAnonymousUsage(
+  client: AdminClient,
+  anonymousIdHash: string,
+) {
+  const { data, error } = await client
+    .from("usage_limits")
+    .select("id, free_generations_used, free_generations_limit")
+    .eq("anonymous_id_hash", anonymousIdHash)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+async function findUsageIdByAnonymousIdentity(
+  client: AdminClient,
+  anonymousIdHash: string,
+  nowIso: string,
+) {
+  const { data, error } = await client
+    .from("anonymous_usage_identities")
+    .select("usage_limit_id")
+    .eq("anonymous_id_hash", anonymousIdHash)
+    .gt("expires_at", nowIso)
+    .maybeSingle();
+
+  if (error) {
+    throw error;
+  }
+
+  return data?.usage_limit_id ?? null;
+}
+
+async function findUsageIdsByDeviceHash(
+  client: AdminClient,
+  deviceHash: string | null,
+  nowIso: string,
+) {
+  if (!deviceHash) {
+    return [];
+  }
+
+  const { data, error } = await client
+    .from("anonymous_usage_identities")
+    .select("usage_limit_id")
+    .eq("device_hash", deviceHash)
+    .gt("expires_at", nowIso);
+
+  if (error) {
+    throw error;
+  }
+
+  return Array.from(new Set(data.map((row) => row.usage_limit_id)));
+}
+
+function isDuplicateIdentityError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const code = "code" in error ? error.code : null;
+  const message = "message" in error ? error.message : null;
+
+  return (
+    code === "23505" ||
+    (typeof message === "string" &&
+      message.toLowerCase().includes("duplicate key"))
+  );
+}
+
+async function attachAnonymousIdentity(
+  client: AdminClient,
+  usageLimitId: string,
+  identity: HashedAnonymousIdentity,
+) {
+  const { error } = await client.from("anonymous_usage_identities").insert({
+    usage_limit_id: usageLimitId,
+    anonymous_id_hash: identity.anonymousIdHash,
+    device_hash: identity.deviceHash,
+    ip_hash: identity.ipHash,
+    expires_at: getAnonymousIdentityExpiry(),
+  });
+
+  if (error && !isDuplicateIdentityError(error)) {
+    throw error;
+  }
+}
+
+async function createAnonymousUsageLimit(
+  client: AdminClient,
+  identity: HashedAnonymousIdentity,
+) {
+  const { data, error } = await client
+    .from("usage_limits")
+    .insert({
+      anonymous_id_hash: identity.anonymousIdHash,
+      ip_hash: identity.ipHash,
+      free_generations_used: 0,
+      free_generations_limit: ANONYMOUS_FREE_GENERATIONS_LIMIT,
+    })
+    .select("id, free_generations_used, free_generations_limit")
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  await attachAnonymousIdentity(client, data.id, identity);
+
+  return data.id;
+}
+
+async function prepareAnonymousUsage(
+  client: AdminClient,
+  identity: HashedAnonymousIdentity,
+): Promise<PreparedAnonymousUsage> {
+  const nowIso = new Date().toISOString();
+  const identityUsageId = await findUsageIdByAnonymousIdentity(
+    client,
+    identity.anonymousIdHash,
+    nowIso,
+  );
+
+  if (identityUsageId) {
+    return { status: "ready", usageLimitId: identityUsageId };
+  }
+
+  const legacyUsage = await findLegacyAnonymousUsage(client, identity.anonymousIdHash);
+
+  if (legacyUsage) {
+    await attachAnonymousIdentity(client, legacyUsage.id, identity);
+    return { status: "ready", usageLimitId: legacyUsage.id };
+  }
+
+  const deviceUsageIds = await findUsageIdsByDeviceHash(
+    client,
+    identity.deviceHash,
+    nowIso,
+  );
+
+  if (deviceUsageIds.length > 1) {
+    return { status: "signup_required" };
+  }
+
+  if (deviceUsageIds.length === 1) {
+    await attachAnonymousIdentity(client, deviceUsageIds[0], identity);
+    return { status: "ready", usageLimitId: deviceUsageIds[0] };
+  }
+
+  return {
+    status: "ready",
+    usageLimitId: await createAnonymousUsageLimit(client, identity),
+  };
+}
+
+async function consumeUsageLimit(client: AdminClient, usageLimitId: string) {
+  const { data, error } = await client
+    .rpc("consume_usage_limit", {
+      p_usage_limit_id: usageLimitId,
+    })
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
 }
 
 export function resolveFreeGenerationsUsedFromGuards({
@@ -185,16 +439,44 @@ export async function initializeAuthenticatedUsageIfConfigured(
 
 export async function initializeAnonymousUsage({
   anonymousId,
+  deviceId = null,
   ip,
   client = createSupabaseAdminClient(),
 }: AnonymousUsageInput) {
-  const anonymousIdHash = hashUserIdForGuard(anonymousId);
-  const ipHash = hashIpForGuard(ip);
+  const { anonymousIdHash, ipHash } = createAnonymousIdentityHashes({
+    anonymousId,
+    deviceId,
+    ip,
+  });
 
   await upsertAnonymousUsage(client, {
     anonymousIdHash,
     ipHash,
   });
+}
+
+export async function consumeAnonymousFreeGeneration({
+  anonymousId,
+  deviceId = null,
+  ip,
+  client = createSupabaseAdminClient(),
+}: AnonymousUsageInput): Promise<AnonymousUsageResult> {
+  const identity = createAnonymousIdentityHashes({ anonymousId, deviceId, ip });
+  const preparedUsage = await prepareAnonymousUsage(client, identity);
+
+  if (preparedUsage.status === "signup_required") {
+    return { status: "signup_required" };
+  }
+
+  const usage = await findUsageById(client, preparedUsage.usageLimitId);
+
+  if (!usage) {
+    return { status: "unavailable" };
+  }
+
+  const consumedUsage = await consumeUsageLimit(client, usage.id);
+
+  return getAnonymousUsageState(consumedUsage);
 }
 
 export async function getAuthenticatedUsageCount(
